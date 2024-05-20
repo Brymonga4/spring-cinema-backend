@@ -16,7 +16,7 @@ public class Movie {
     private String title;
     @Column(name = "orig_title", nullable = false)
     private String originalTitle;
-    @Column(nullable = false)
+    @Column(name = "release_date", nullable = false)
     private LocalDate release;
 
     @Column(nullable = false)
