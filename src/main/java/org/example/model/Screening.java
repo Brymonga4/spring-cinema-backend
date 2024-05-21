@@ -12,7 +12,7 @@ public class Screening {
     private Long idScreening;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_movie", nullable = false)
+    @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
     @ManyToOne(fetch = FetchType.LAZY)

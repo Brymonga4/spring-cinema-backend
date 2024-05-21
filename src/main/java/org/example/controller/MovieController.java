@@ -1,11 +1,17 @@
 package org.example.controller;
 
+import jakarta.validation.Valid;
 import org.example.model.Movie;
 import org.example.service.MovieService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -33,6 +39,28 @@ public class MovieController {
 
     }
 
+    @GetMapping("/allmovies")
+    public  ResponseEntity<Map<String, Object>> findAllMovies(){
+        List<Movie> movies = service.findAll();
+
+        if (movies.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .build()
+                .toUri();
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("info", Map.of(
+                "count", movies.size()
+        ));
+        response.put("results", movies);
+        response.put("url", location.toString());
+
+        return ResponseEntity.ok(response);
+    }
+
     /*
     GET http://localhost:8080/api/movies/1
      */
@@ -50,13 +78,13 @@ public class MovieController {
      */
 
     @PostMapping("/movies")
-    public ResponseEntity<Movie> create(@RequestBody Movie movie){
+    public ResponseEntity<Movie> create(@Valid @RequestBody Movie movie){
 
         if(movie.getId() != null)
             return ResponseEntity.badRequest().build();
 
-        this.service.save(movie);
-        return ResponseEntity.ok(movie);
+        Movie savedMovie = this.service.save(movie);
+        return ResponseEntity.ok(savedMovie);
     }
 
     /*

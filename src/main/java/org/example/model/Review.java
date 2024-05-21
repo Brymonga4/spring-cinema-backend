@@ -11,7 +11,7 @@ public class Review {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie", referencedColumnName = "id_movie")
+    @JoinColumn(name = "movie", referencedColumnName = "movie_id")
     private Movie movie;
 
     @ManyToOne(fetch = FetchType.LAZY)

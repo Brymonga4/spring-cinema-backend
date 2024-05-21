@@ -41,9 +41,15 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public Movie save(Movie movie) {
-        this.repository.save(movie);
+
+        if (repository.existsByTitleAndOrigTitle(movie.getTitle(), movie.getOrigTitle()))
+            throw new IllegalStateException("Ya existe una película con ese título y título original.");
+        else
+            this.repository.save(movie);
+
         return movie;
     }
+
 
     @Override
     public void deleteById(Long id) {

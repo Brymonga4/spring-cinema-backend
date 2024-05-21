@@ -2,6 +2,9 @@ package org.example.model;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.NotFound;
 
 import java.time.LocalDate;
 
@@ -10,12 +13,14 @@ import java.time.LocalDate;
 public class Movie {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_movie")
+    @Column(name = "movie_id")
     private Long id;
+    @NotBlank(message = "El titulo no puede estar vacío.")
+    @Size(max = 100, message = "El título no puede tener más de 100 carácteres.")
     @Column(nullable = false)
     private String title;
     @Column(name = "orig_title", nullable = false)
-    private String originalTitle;
+    private String origTitle;
     @Column(name = "release_date", nullable = false)
     private LocalDate release;
 
@@ -58,10 +63,10 @@ public class Movie {
     public Movie() {
     }
 
-    public Movie(Long id, String title, String originalTitle, LocalDate release, String genres, String actors, String directors, String script, String producers, String synopsis, boolean originalVersion, boolean spanishVersion, String image, String trailer, String ageRating, Integer duration) {
+    public Movie(Long id, String title, String origTitle, LocalDate release, String genres, String actors, String directors, String script, String producers, String synopsis, boolean originalVersion, boolean spanishVersion, String image, String trailer, String ageRating, Integer duration) {
         this.id = id;
         this.title = title;
-        this.originalTitle = originalTitle;
+        this.origTitle = origTitle;
         this.release = release;
         this.genres = genres;
         this.actors = actors;
@@ -94,12 +99,12 @@ public class Movie {
         this.title = title;
     }
 
-    public String getOriginalTitle() {
-        return originalTitle;
+    public String getOrigTitle() {
+        return origTitle;
     }
 
-    public void setOriginalTitle(String originalTitle) {
-        this.originalTitle = originalTitle;
+    public void setOrigTitle(String originalTitle) {
+        this.origTitle = originalTitle;
     }
 
     public LocalDate getRelease() {
@@ -211,7 +216,7 @@ public class Movie {
         return "Movie{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", originalTitle='" + originalTitle + '\'' +
+                ", originalTitle='" + origTitle + '\'' +
                 ", release=" + release +
                 ", genres='" + genres + '\'' +
                 ", actors='" + actors + '\'' +
