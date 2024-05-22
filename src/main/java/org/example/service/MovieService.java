@@ -1,6 +1,5 @@
 package org.example.service;
 
-import org.example.model.Manufacturer;
 import org.example.model.Movie;
 
 import java.util.List;

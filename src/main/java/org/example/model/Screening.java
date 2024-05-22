@@ -1,25 +1,32 @@
 package org.example.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "screenings")
 public class Screening {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_screening")
-    private Long idScreening;
+    @Column(name = "screening_id")
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_screen", nullable = false)
+    @JoinColumn(name = "screen_id", nullable = false)
     private Screen screen;
 
-    @Column(nullable = false)
+    @Column(name = "start_time")
     private LocalDateTime date;
 
     @Column(nullable = false)

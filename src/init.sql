@@ -239,7 +239,8 @@ ALTER SEQUENCE public.screenings_screening_id_seq OWNED BY public.screenings.scr
 
 CREATE TABLE public.screens (
                                 id_screen integer NOT NULL,
-                                supports character varying NOT NULL
+                                supports character varying NOT NULL,
+                                id_cinema integer NOT NULL
 );
 
 
@@ -766,8 +767,10 @@ ALTER TABLE ONLY public.reviews
 ALTER TABLE ONLY public.reviews
     ADD CONSTRAINT reviews_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(user_id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.screens
+    ADD CONSTRAINT screens_cinema_id_fkey FOREIGN KEY (id_cinema) REFERENCES public.cinemas(id) ON DELETE CASCADE;
 
---
+        --
 -- TOC entry 3282 (class 2606 OID 16483)
 -- Name: screen_rows screen_rows_screen_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
@@ -783,6 +786,7 @@ ALTER TABLE ONLY public.screen_rows
 
 ALTER TABLE ONLY public.screenings
     ADD CONSTRAINT screenings_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES public.movies(movie_id) ON DELETE CASCADE;
+
 
 
 --
