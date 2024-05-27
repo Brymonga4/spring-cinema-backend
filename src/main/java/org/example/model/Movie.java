@@ -66,4 +66,5 @@ public class Movie {
 
     @Column(nullable = false)
     private Integer duration;
+
 }

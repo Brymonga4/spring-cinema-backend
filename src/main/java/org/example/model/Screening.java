@@ -27,12 +27,20 @@ public class Screening {
     private Screen screen;
 
     @Column(name = "start_time")
-    private LocalDateTime date;
+    private LocalDateTime start_time;
 
     @Column(nullable = false)
     private String audio;
 
     @Column(nullable = false)
     private Double price;
+
+    public LocalDateTime getEndTime() {
+        if (movie != null && movie.getDuration() != null) {
+
+            return start_time.plusMinutes(movie.getDuration());
+        }
+        return start_time;
+    }
 
 }

@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.MovieDTO;
 import org.example.model.Movie;
 
 import java.util.List;
@@ -7,24 +8,24 @@ import java.util.Optional;
 
 public interface MovieService {
 
-    List<Movie> findAll();
-    List<Movie> findAllByYear(Integer year);
-
-    Optional<Movie> findById(Long id);
-
-    Optional<Movie> findByName(String name);
-
+    //FIND
+    List<MovieDTO> findAll();
+    List<MovieDTO> findAllByYear(Integer year);
+    Optional<MovieDTO> findById(Long id);
+    Optional<MovieDTO> findMovieByTitle(String title);
     // CREATE
-
-    Movie save(Movie movie);
+    MovieDTO save(Movie movie);
 
     // DELETE
-
     void deleteById(Long id);
     void deleteAll();
 
+    // UPDATE
+    MovieDTO update(Movie movie);
 
-    // Más cosas
+    //OTROS
+    List<MovieDTO> findRecentMovies();
 
+    List<MovieDTO> findMovieListing();
 
 }
