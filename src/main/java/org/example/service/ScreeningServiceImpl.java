@@ -3,16 +3,16 @@ package org.example.service;
 import jakarta.transaction.Transactional;
 import org.example.model.Screening;
 import org.example.repository.ScreeningRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-public class ScreeningImpl implements ScreeningService {
+@Service
+public class ScreeningServiceImpl implements ScreeningService {
 
     private ScreeningRepository repository;
 
-    public ScreeningImpl(ScreeningRepository repository){ this.repository = repository;}
+    public ScreeningServiceImpl(ScreeningRepository repository){ this.repository = repository;}
 
     @Override
     public List<Screening> findAll() {
@@ -63,6 +63,10 @@ public class ScreeningImpl implements ScreeningService {
             throw new IllegalStateException("Ya existe una función en ese espacio de tiempo.");
         }
         return repository.save(screening);
+    }
+
+    public List<Screening> findAllScreeningByScreenId(Long id){
+        return repository.findAllByScreen_Id(id);
     }
 
 }
