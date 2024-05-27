@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -25,8 +26,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM Movie m WHERE m.id = :id")
     void findAndLockById(Long id);
 
-    @Query("SELECT m FROM Movie m WHERE m.id IN (SELECT s.movie.id FROM Screening s WHERE s.date BETWEEN CURRENT_DATE AND (CURRENT_DATE + 14)) ")
-    List<Movie> findMovieListingForNextTwoWeeks();
+    @Query("SELECT m FROM Movie m WHERE m.id IN (SELECT s.movie.id FROM Screening s WHERE s.start_time BETWEEN CURRENT_DATE AND :endDate)")
+    List<Movie> findMovieListingUntilenDate(LocalDateTime endDate);
 
     Movie findMovieByTitle(String title);
 

@@ -43,7 +43,8 @@ public class ScreeningImpl implements ScreeningService {
     @Override
     @Transactional
     public Screening update(Screening screening) {
-        return null;
+        this.repository.findAndLockById(screening.getId());
+        return this.save(screening);
     }
 
     public boolean isOverlapping(Screening newScreening){

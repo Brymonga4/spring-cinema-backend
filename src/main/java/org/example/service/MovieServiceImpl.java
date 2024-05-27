@@ -10,6 +10,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,7 +41,10 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public List<MovieDTO> findMovieListing() {
-        return this.repository.findMovieListingForNextTwoWeeks().stream()
+
+        LocalDateTime endDate = LocalDateTime.now().plusDays(14);
+
+        return this.repository.findMovieListingUntilenDate(endDate).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
