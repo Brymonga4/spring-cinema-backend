@@ -2,28 +2,27 @@ package org.example.service;
 
 import org.example.dto.MovieDTO;
 import org.example.model.Movie;
-import org.example.model.Seat;
+import org.example.model.Screen;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface SeatService {
+public interface ScreenService {
 
     //FIND
-    List<Seat> findAll();
-    Optional<Seat> findById(Long id);
+    List<Screen> findAll();
+    Optional<Screen> findById(Long id);
     // CREATE
-    Seat save(Seat seat);
-
-    List<Seat> saveAll(List<Seat> seats);
+    Screen save(Screen screen);
 
     // DELETE
     void deleteById(Long id);
     void deleteAll();
 
     // UPDATE
-    Seat update(Seat seat);
-
+    Screen update(Screen screen);
 
 
 }
+
+

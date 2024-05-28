@@ -1,10 +1,11 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,9 +17,9 @@ public class Seat {
     @Column(name = "seat_id")
     private Long idSeat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "row_id", nullable = false)
-    private Screen_rows screenRows;
+    private ScreenRows screenRows;
 
     @Column(name = "seat_number")
     private Long seatNumber;
