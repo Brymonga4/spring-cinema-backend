@@ -36,5 +36,5 @@ public class Review {
     private Short rating;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDateTime review_date;
 }

@@ -16,6 +16,29 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+DROP DATABASE cinemadb;
+--
+-- Name: cinemadb; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE cinemadb WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'en_US.utf8';
+
+
+ALTER DATABASE cinemadb OWNER TO postgres;
+
+\connect cinemadb
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -149,8 +172,7 @@ CREATE TABLE public.reviews (
     title character varying NOT NULL,
     opinion character varying NOT NULL,
     rating smallint NOT NULL,
-    review_date timestamp with time zone NOT NULL,
-    date timestamp(6) without time zone NOT NULL
+    review_date timestamp with time zone NOT NULL
 );
 
 
@@ -224,7 +246,6 @@ CREATE TABLE public.screenings (
     screen_id bigint NOT NULL,
     start_time timestamp with time zone NOT NULL,
     audio character varying(255) NOT NULL,
-    date timestamp(6) without time zone NOT NULL,
     price double precision NOT NULL
 );
 
@@ -260,7 +281,7 @@ ALTER SEQUENCE public.screenings_screening_id_seq OWNED BY public.screenings.scr
 CREATE TABLE public.screens (
     id_screen bigint NOT NULL,
     supports character varying NOT NULL,
-    id_cinema bigint NOT NULL,
+    id_cinema bigint NOT NULL
 );
 
 
@@ -487,6 +508,7 @@ COPY public.bookings (booking_id, user_id) FROM stdin;
 --
 
 COPY public.cinemas (id, address, email, name, phone) FROM stdin;
+1	123 Calle Falsa	contacto@cineMM.com	CinemaMM	666-666-666
 \.
 
 
@@ -498,6 +520,7 @@ COPY public.movies (movie_id, title, orig_title, release_date, genres, actors, d
 14	El Origen	Inception	2010-07-16	Sci-Fi, Thriller	Leonardo DiCaprio, Joseph Gordon-Levitt, Ellen Page	Christopher Nolan	Christopher Nolan	Emma Thomas, Christopher Nolan	Un ladrón que roba secretos corporativos a través del uso de tecnología de compartir sueños recibe la tarea inversa de plantar una idea en la mente de un CEO.	t	f	inception.jpg	https://youtu.be/YoHD9XEInc0	PG-13	148
 15	Interestelar	Interstellar	2014-11-07	Adventure, Drama, Sci-Fi	Matthew McConaughey, Anne Hathaway, Jessica Chastain	Christopher Nolan	Jonathan Nolan, Christopher Nolan	Lynda Obst, Christopher Nolan	Un grupo de exploradores viaja a través de un agujero de gusano en el espacio en un intento de asegurar la supervivencia de la humanidad.	t	f	interstellar.jpg	https://youtu.be/zSWdZVtXT7E	PG-13	169
 20	El Camino del Guerrero	The Way of the Warrior	2024-12-15	Acción, Aventura, Drama	John Doe, Jane Doe	Michael Smith	John Scripter	Anna Producer	Un guerrero retirado debe volver a tomar las armas cuando su pueblo es amenazado por un señor de la guerra.	t	f	http://example.com/images/el_camino_del_guerrero.jpg	http://example.com/trailers/el_camino_del_guerrero.mp4	PG-13	120
+41	La Travesía	The Journey	2023-11-23	Aventura, Misterio	Eva Green, Tom Hardy, Idris Elba	Jane Doe	John Doe	Alice Smith, Robert Jones	Una exploradora y sus compañeros viajan a través de un desierto desconocido para encontrar una ciudad perdida, enfrentándose a desafíos naturales y rivales que buscan el mismo tesoro.	t	f	the_journey.jpg	https://youtu.be/example_trailer	PG	135
 \.
 
 
@@ -505,7 +528,7 @@ COPY public.movies (movie_id, title, orig_title, release_date, genres, actors, d
 -- Data for Name: reviews; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.reviews (review_id, movie_id, user_id, title, opinion, rating, review_date, date) FROM stdin;
+COPY public.reviews (review_id, movie_id, user_id, title, opinion, rating, review_date) FROM stdin;
 \.
 
 
@@ -514,6 +537,8 @@ COPY public.reviews (review_id, movie_id, user_id, title, opinion, rating, revie
 --
 
 COPY public.screen_rows (row_id, screen_id, row_number, number_of_seats) FROM stdin;
+1	13	1	10
+2	13	2	8
 \.
 
 
@@ -521,7 +546,7 @@ COPY public.screen_rows (row_id, screen_id, row_number, number_of_seats) FROM st
 -- Data for Name: screenings; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.screenings (screening_id, movie_id, screen_id, start_time, audio, date, price) FROM stdin;
+COPY public.screenings (screening_id, movie_id, screen_id, start_time, audio, price) FROM stdin;
 \.
 
 
@@ -529,7 +554,8 @@ COPY public.screenings (screening_id, movie_id, screen_id, start_time, audio, da
 -- Data for Name: screens; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.screens (id_screen, supports, id_cinema, id) FROM stdin;
+COPY public.screens (id_screen, supports, id_cinema) FROM stdin;
+13	Digital	1
 \.
 
 
@@ -538,6 +564,24 @@ COPY public.screens (id_screen, supports, id_cinema, id) FROM stdin;
 --
 
 COPY public.seats (seat_id, row_id, seat_number, seat_type, reserved) FROM stdin;
+12	1	1	N	f
+13	1	2	N	f
+14	1	3	N	f
+15	1	4	N	f
+16	1	5	N	f
+17	1	6	N	f
+18	1	7	N	f
+19	1	8	N	f
+20	1	9	N	f
+21	1	10	N	f
+22	2	1	N	f
+23	2	2	N	f
+24	2	3	N	f
+25	2	4	N	f
+26	2	5	N	f
+27	2	6	N	f
+28	2	7	N	f
+29	2	8	N	f
 \.
 
 
@@ -568,14 +612,14 @@ SELECT pg_catalog.setval('public.bookings_booking_id_seq', 1, false);
 -- Name: cinemas_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.cinemas_id_seq', 1, false);
+SELECT pg_catalog.setval('public.cinemas_id_seq', 50, true);
 
 
 --
 -- Name: movies_movie_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.movies_movie_id_seq', 38, true);
+SELECT pg_catalog.setval('public.movies_movie_id_seq', 141, true);
 
 
 --
@@ -589,7 +633,7 @@ SELECT pg_catalog.setval('public.reviews_review_id_seq', 1, false);
 -- Name: screen_rows_row_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.screen_rows_row_id_seq', 1, false);
+SELECT pg_catalog.setval('public.screen_rows_row_id_seq', 2, true);
 
 
 --
@@ -603,14 +647,14 @@ SELECT pg_catalog.setval('public.screenings_screening_id_seq', 1, false);
 -- Name: screens_id_screen_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.screens_id_screen_seq', 1, false);
+SELECT pg_catalog.setval('public.screens_id_screen_seq', 13, true);
 
 
 --
 -- Name: seats_seat_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.seats_seat_id_seq', 1, false);
+SELECT pg_catalog.setval('public.seats_seat_id_seq', 29, true);
 
 
 --
@@ -753,14 +797,6 @@ ALTER TABLE ONLY public.bookings
 
 ALTER TABLE ONLY public.screens
     ADD CONSTRAINT fkd8stwgck4bflg6nyu5kr305l9 FOREIGN KEY (id_cinema) REFERENCES public.cinemas(id);
-
-
---
--- Name: screens fkvslnjpgkv16fs5ttavke74gt; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.screens
-    ADD CONSTRAINT fkvslnjpgkv16fs5ttavke74gt FOREIGN KEY (id) REFERENCES public.cinemas(id);
 
 
 --
