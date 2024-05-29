@@ -28,4 +28,8 @@ public interface MovieService {
 
     List<MovieDTO> findMovieListing();
 
+    MovieDTO convertToDto(Movie movie);
+
+    Movie convertToEntity(MovieDTO movieDto);
+
 }

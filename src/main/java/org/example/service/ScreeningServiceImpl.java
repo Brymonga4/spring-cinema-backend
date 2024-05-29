@@ -3,8 +3,11 @@ package org.example.service;
 import jakarta.transaction.Transactional;
 import org.example.model.Screening;
 import org.example.repository.ScreeningRepository;
+import org.example.util.DateComparison;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -12,7 +15,10 @@ public class ScreeningServiceImpl implements ScreeningService {
 
     private ScreeningRepository repository;
 
-    public ScreeningServiceImpl(ScreeningRepository repository){ this.repository = repository;}
+
+    public ScreeningServiceImpl(ScreeningRepository repository){
+        this.repository = repository;
+    }
 
     @Override
     public List<Screening> findAll() {
@@ -26,9 +32,11 @@ public class ScreeningServiceImpl implements ScreeningService {
         return this.repository.findById(id);
     }
 
-    public List<Screening> findAllByMovie(Long id) {
-        return this.repository.findAllByMovie_Id(id);
+    @Override
+    public List<Screening> findAllByScreenIdAndToday(Long screenId) {
+        return this.repository.findAllByScreenIdAndToday(screenId);
     }
+
 
     @Override
     public void deleteById(Long id) {
@@ -65,8 +73,36 @@ public class ScreeningServiceImpl implements ScreeningService {
         return repository.save(screening);
     }
 
-    public List<Screening> findAllScreeningByScreenId(Long id){
-        return repository.findAllByScreen_Id(id);
+    @Override
+    public List<Screening> findScreeningsByToday() {
+        return repository.findScreeningsByToday();
     }
+
+    @Override
+    public List<Screening> findAllByMovieIdAndToday(Long movieId) {
+        return repository.findAllByMovieIdAndToday(movieId);
+    }
+
+
+    @Override
+    public List<Screening> findScreeningsAfterCurrentTimeStamp() {
+        List<Screening> screenings = repository.findScreeningsAfterCurrentTimeStamp();
+        for (Screening s : screenings){
+            System.out.println(s.getStart_time());
+        }
+
+        return repository.findScreeningsAfterCurrentTimeStamp();
+    }
+
+    @Override
+    public List<Screening> findAllByMovieIdAndNext7Days(Long movieId) {
+        return repository.findAllByMovieIdAndNext7Days(movieId);
+    }
+
+    @Override
+    public List<Screening> findFromNowToNext7Days() {
+        return repository.findFromNowToNext7Days();
+    }
+
 
 }

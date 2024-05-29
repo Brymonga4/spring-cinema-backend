@@ -49,6 +49,13 @@ public class Screen_rowsController {
 
     }
 
+    @GetMapping("/screens/{id}/screen_rows")
+    public ResponseEntity<List<ScreenRows>>findAllByScreenId(@PathVariable Long id){
+        List <ScreenRows> screenRows = this.screen_rowService.findAllByScreenId(id);
+        return ResponseEntity.ok(screenRows);
+    }
+
+
       /*
     POST http://localhost:8080/api/screen_rows
      */

@@ -11,6 +11,8 @@ public interface Screen_rowsService {
     List<ScreenRows> findAll();
     Optional<ScreenRows> findById(Long id);
 
+    List<ScreenRows> findAllByScreenId(Long id);
+
     // CREATE
     ScreenRows save(ScreenRows screenRows);
 

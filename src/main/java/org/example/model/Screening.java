@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
@@ -18,16 +19,16 @@ public class Screening {
     @Column(name = "screening_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "screen_id", nullable = false)
     private Screen screen;
 
     @Column(name = "start_time")
-    private LocalDateTime start_time;
+    private ZonedDateTime start_time;
 
     @Column(nullable = false)
     private String audio;
@@ -35,7 +36,7 @@ public class Screening {
     @Column(nullable = false)
     private Double price;
 
-    public LocalDateTime getEndTime() {
+    public ZonedDateTime  getEndTime() {
         if (movie != null && movie.getDuration() != null) {
 
             return start_time.plusMinutes(movie.getDuration());

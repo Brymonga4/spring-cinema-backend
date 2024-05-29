@@ -52,6 +52,11 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
+    public List<Seat> findAllSeatsInScreen(Long id){
+       return  this.repository.findAllByScreenId(id);
+    }
+
+    @Override
     @Transactional
     public List<Seat> saveAll(List<Seat> seats) throws IllegalStateException {
         // Mapa para mantener la cuenta de asientos adicionales solicitados por fila

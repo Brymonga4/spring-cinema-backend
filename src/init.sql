@@ -15,6 +15,8 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+SET TIMEZONE='UTC';
+
 
 SET default_tablespace = '';
 
@@ -510,6 +512,8 @@ ALTER TABLE ONLY public.reviews
 ALTER TABLE ONLY public.screen_rows
     ADD CONSTRAINT screen_rows_pkey PRIMARY KEY (row_id);
 
+ALTER TABLE ONLY public.screen_rows
+    ADD CONSTRAINT unique_screen_id_row_number UNIQUE (screen_id, row_number);
 
 --
 -- Name: screenings screenings_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -534,6 +538,8 @@ ALTER TABLE ONLY public.screens
 ALTER TABLE ONLY public.seats
     ADD CONSTRAINT seats_pkey PRIMARY KEY (seat_id);
 
+ALTER TABLE ONLY public.seats
+    ADD CONSTRAINT unique_seat_in_row UNIQUE (row_id, seat_number);
 
 --
 -- Name: tickets tickets_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres

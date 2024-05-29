@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,6 +18,9 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     void findAndLockById(Long id);
 
     boolean existsByScreenRowsIdAndSeatNumber(Long rowId, Long seatNumber);
+
+    @Query("SELECT s FROM Seat s WHERE s.screenRows.screen.id = :screenId")
+    List<Seat> findAllByScreenId(Long screenId);
 
     long countByScreenRowsId(Long id);
 

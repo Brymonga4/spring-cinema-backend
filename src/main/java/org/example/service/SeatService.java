@@ -11,6 +11,8 @@ public interface SeatService {
 
     //FIND
     List<Seat> findAll();
+
+    List<Seat> findAllSeatsInScreen(Long id);
     Optional<Seat> findById(Long id);
     // CREATE
     Seat save(Seat seat);

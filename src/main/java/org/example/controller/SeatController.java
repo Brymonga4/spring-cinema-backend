@@ -40,6 +40,19 @@ public class SeatController {
 
     }
 
+
+    @GetMapping("screens/{id}/seats")
+    public ResponseEntity<List<Seat>> findAllSeatsInScreen(@PathVariable Long id){
+
+        List <Seat> seats = this.seatService.findAllSeatsInScreen(id);
+
+        if (seats.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(seats);
+
+    }
+
     /*
     GET http://localhost:8080/api/seats/1
      */
@@ -72,6 +85,7 @@ public class SeatController {
     public ResponseEntity<List<Seat>>createBulk(@Valid @RequestBody List<Seat> seats){
 
         for (Seat seat : seats) {
+            System.out.println(seat);
             if (seat.getScreenRows().getId() != null) {
                 ScreenRows sr = screenRowsService.findById(seat.getScreenRows().getId())
                         .orElseThrow(() -> new RuntimeException("No se encontró la fila para el asiento: " + seat.getIdSeat()));

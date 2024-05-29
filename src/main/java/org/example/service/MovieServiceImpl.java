@@ -104,8 +104,8 @@ public class MovieServiceImpl implements MovieService {
     }
 
 
-
-    private MovieDTO convertToDto(Movie movie) {
+    @Override
+    public MovieDTO convertToDto(Movie movie) {
 
         String baseUrl = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
@@ -133,8 +133,8 @@ public class MovieServiceImpl implements MovieService {
                 baseUrl
         );
     }
-
-    private Movie convertToEntity(MovieDTO movieDto) {
+    @Override
+    public Movie convertToEntity(MovieDTO movieDto) {
         Movie movie = repository.findById(movieDto.getId())
                 .orElseThrow(() -> new EntityNotFoundException("No hay película con id : " + movieDto.getId()));
 

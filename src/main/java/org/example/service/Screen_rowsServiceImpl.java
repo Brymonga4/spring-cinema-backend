@@ -24,6 +24,8 @@ public class Screen_rowsServiceImpl implements Screen_rowsService{
         return this.repository.findById(id);
     }
 
+
+
     @Override
     public ScreenRows save(ScreenRows screenRows) {
         return this.repository.save(screenRows);
@@ -36,8 +38,13 @@ public class Screen_rowsServiceImpl implements Screen_rowsService{
 
     @Override
     public void deleteAll() {
-
+        this.repository.deleteAll();
     }
+    @Override
+    public List<ScreenRows> findAllByScreenId(Long id){
+        return this.repository.findAllByScreenId(id);
+    }
+
 
     @Override
     public ScreenRows update(ScreenRows screenRows) {

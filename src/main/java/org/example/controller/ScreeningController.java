@@ -3,21 +3,32 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import org.example.dto.MovieDTO;
 import org.example.model.Movie;
+import org.example.model.Screen;
 import org.example.model.Screening;
+import org.example.service.MovieService;
+import org.example.service.ScreenService;
 import org.example.service.ScreeningService;
+import org.example.util.DateComparison;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
 public class ScreeningController {
 
-    private ScreeningService service;
+    private ScreeningService screeningService;
+    private ScreenService screenService;
+    private MovieService movieService;
 
-    public ScreeningController(ScreeningService service){
-        this.service = service;
+    public ScreeningController(ScreeningService screeningService,ScreenService screenService,  MovieService movieService){
+        this.screeningService = screeningService;
+        this.screenService = screenService;
+        this.movieService = movieService;
     }
 
      /*
@@ -27,7 +38,18 @@ public class ScreeningController {
     @GetMapping("/screenings")
     public ResponseEntity<List<Screening>> findAll(){
 
-        List <Screening> screenings = this.service.findAll();
+        List <Screening> screenings = this.screeningService.findAll();
+
+        if (screenings.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(screenings);
+
+    }
+    @GetMapping("/screenings/today")
+    public ResponseEntity<List<Screening>> findAllByToday(){
+
+        List <Screening> screenings = this.screeningService.findScreeningsByToday();
 
         if (screenings.isEmpty())
             return ResponseEntity.notFound().build();
@@ -36,14 +58,92 @@ public class ScreeningController {
 
     }
 
+    @GetMapping("/screenings/today/available")
+    public ResponseEntity<List<Screening>> findScreeningsAfterCurrentTimeStamp(){
+
+        List <Screening> screenings = this.screeningService.findScreeningsAfterCurrentTimeStamp();
+
+        if (screenings.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(screenings);
+
+    }
+
+    @GetMapping("/screen/{id}/screenings/today")
+    public ResponseEntity<List<Screening>> findAllByScreenIdAndToday(@PathVariable Long id){
+
+        List <Screening> screenings = this.screeningService.findAllByScreenIdAndToday(id);
+
+        if (screenings.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(screenings);
+
+    }
+
+    @GetMapping("/movie/{id}/screenings/today")
+    public ResponseEntity<List<Screening>> findAllByMovieIdAndToday(@PathVariable Long id){
+
+        List <Screening> screenings = this.screeningService.findAllByMovieIdAndToday(id);
+
+        if (screenings.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(screenings);
+
+    }
+
+    @GetMapping("/movie/{id}/screenings/week")
+    public ResponseEntity<List<Screening>> findAllByMovieIdAndNext7Days(@PathVariable Long id){
+
+        List <Screening> screenings = this.screeningService.findAllByMovieIdAndNext7Days(id);
+        List <Screening> availableScreenings = new ArrayList<>();
+
+        for(Screening s: screenings)
+            if (DateComparison.compareZonedDateTime(ZonedDateTime.now(),s.getStart_time())) {
+                availableScreenings.add(s);
+            }else{
+                System.out.println("Nada");
+            }
+        if (screenings.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(availableScreenings);
+
+    }
+
+    @GetMapping("/screenings/week/available")
+    public ResponseEntity<List<Screening>> findFromNowToNext7Days(){
+
+        List <Screening> screenings = this.screeningService.findFromNowToNext7Days();
+        List <Screening> availableScreenings = new ArrayList<>();
+
+        for(Screening s: screenings)
+            if (DateComparison.compareZonedDateTime(ZonedDateTime.now(),s.getStart_time())) {
+                availableScreenings.add(s);
+            }else{
+                System.out.println("Nada");
+            }
+
+        if (availableScreenings.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(availableScreenings);
+
+    }
+
     @GetMapping("/screenings/{id}")
     public ResponseEntity<Screening> findById(@PathVariable Long id){
 
-        return this.service.findById(id)
+        return this.screeningService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
 
     }
+
+
+
 
        /*
     POST http://localhost:8080/api/movies
@@ -52,10 +152,25 @@ public class ScreeningController {
     @PostMapping("/screenings")
     public ResponseEntity<Screening> create(@Valid @RequestBody Screening screening){
 
-        if(screening.getId() != null)
-            return ResponseEntity.badRequest().build();
+        if(screening.getScreen().getId()!= null){
+            Screen screen = screenService.findById(screening.getScreen().getId())
+                    .orElseThrow(() -> new RuntimeException("No se encontró la sala"));
+            screening.setScreen(screen);
+        }
+        if(screening.getMovie().getId()!= null){
+            MovieDTO movieDTO = movieService.findById(screening.getMovie().getId())
+                    .orElseThrow(() -> new RuntimeException("No se encontró la película"));
+            screening.setMovie(movieService.convertToEntity(movieDTO));
+        }
 
-        Screening savedScreening = this.service.save(screening);
+        System.out.println(ZonedDateTime.now());
+        System.out.println(screening.getStart_time());
+
+        if (screening.getStart_time().isBefore(ZonedDateTime.now())) {
+            throw new RuntimeException("No se puede crear una función con un tiempo de inicio inferior al actual");
+        }
+
+        Screening savedScreening = this.screeningService.save(screening);
 
         return ResponseEntity.ok(savedScreening);
     }
@@ -67,10 +182,10 @@ public class ScreeningController {
     public ResponseEntity<Screening> update(@PathVariable Long id, @Valid @RequestBody Screening screening){
 
 
-        if(this.service.findById(id).isEmpty())
+        if(this.screeningService.findById(id).isEmpty())
             return ResponseEntity.badRequest().build();
         screening.setId(id);
-        Screening updatedScreening = this.service.update(screening);
+        Screening updatedScreening = this.screeningService.update(screening);
 
         return ResponseEntity.ok(updatedScreening);
     }
@@ -78,9 +193,11 @@ public class ScreeningController {
     @DeleteMapping ("/screenings/{id}")
     public ResponseEntity<Screening> deleteById(@PathVariable Long id){
 
-        this.service.deleteById(id);
+        this.screeningService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+
 
 
 
