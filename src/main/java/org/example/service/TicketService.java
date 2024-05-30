@@ -1,5 +1,8 @@
 package org.example.service;
 
+import org.example.dto.MovieDTO;
+import org.example.dto.TicketDTO;
+import org.example.model.Movie;
 import org.example.model.Ticket;
 import org.example.model.User;
 
@@ -22,4 +25,10 @@ public interface TicketService {
 
     // UPDATE
     Ticket update(Ticket ticket);
+
+
+    TicketDTO convertToDto(Ticket ticket);
+
+    Ticket convertToEntity(TicketDTO ticketDTO);
+
 }

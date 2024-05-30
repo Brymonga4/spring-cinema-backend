@@ -33,6 +33,11 @@ public class ScreeningServiceImpl implements ScreeningService {
     }
 
     @Override
+    public int countFromNowToNext7Days(Long id) {
+        return this.repository.countFromNowToNext7Days(id);
+    }
+
+    @Override
     public List<Screening> findAllByScreenIdAndToday(Long screenId) {
         return this.repository.findAllByScreenIdAndToday(screenId);
     }

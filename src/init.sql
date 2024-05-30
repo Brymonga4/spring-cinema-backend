@@ -27,7 +27,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.bookings (
-    booking_id bigint NOT NULL,
+    booking_id varchar(9) NOT NULL,
     user_id bigint NOT NULL
 );
 
@@ -331,7 +331,7 @@ ALTER SEQUENCE public.seats_seat_id_seq OWNED BY public.seats.seat_id;
 
 CREATE TABLE public.tickets (
     ticket_id bigint NOT NULL,
-    booking_id bigint NOT NULL,
+    booking_id varchar(9) NOT NULL,
     seat_id bigint NOT NULL,
     screening_id bigint NOT NULL,
     available boolean DEFAULT true NOT NULL

@@ -15,8 +15,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class ScreenController {
-    private ScreenService screenService;
-    private CinemaService cinemaService;
+    private final ScreenService screenService;
+    private final CinemaService cinemaService;
 
     public ScreenController(ScreenService screenService, CinemaService cinemaService) {
         this.screenService = screenService;

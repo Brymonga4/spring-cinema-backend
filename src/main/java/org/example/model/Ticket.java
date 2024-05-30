@@ -16,19 +16,19 @@ public class Ticket {
     @Column(name = "ticket_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "screening_id")
     private Screening screening;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "seat_id")
     private Seat seat;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "booking_id")
-    private Booking booking;
+    private Booking booking = null;
 
     @Column(nullable = false)
-    private boolean available;
+    private boolean available = true;
 
 }

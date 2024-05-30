@@ -44,4 +44,7 @@ public interface ScreeningRepository extends JpaRepository<Screening, Long> {
     @Query(value = "SELECT * FROM screenings WHERE start_time BETWEEN CURRENT_TIMESTAMP AND (CURRENT_TIMESTAMP + INTERVAL '7 days')", nativeQuery = true)
     List<Screening> findFromNowToNext7Days();
 
+    @Query(value = "SELECT COUNT(*) FROM screenings WHERE screening_id = :id  AND start_time BETWEEN CURRENT_TIMESTAMP AND (CURRENT_TIMESTAMP + INTERVAL '7 days')", nativeQuery = true)
+    int countFromNowToNext7Days(Long id);
+
     }

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.exception.Messages;
+import org.example.util.IdGenerator;
 
 @Data //Tostring, equals, getters y setters
 @NoArgsConstructor  // Constructor sin argumentos
@@ -14,12 +15,10 @@ import org.example.exception.Messages;
 @Table(name = "bookings")
 public class Booking {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_id")
-    private Long id;
+    private String id;
 
-    @Email(message = Messages.MSG_ERROR_EMAIL)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

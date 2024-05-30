@@ -12,6 +12,7 @@ public interface ScreeningService {
 
     List<Screening> findAll();
     Optional<Screening> findById(Long id);
+    int countFromNowToNext7Days(Long id);
     List<Screening> findAllByScreenIdAndToday(Long screenId);
     List<Screening> findScreeningsByToday();
     List<Screening> findAllByMovieIdAndToday(Long movieId);
