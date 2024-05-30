@@ -15,7 +15,7 @@ public interface ScreeningService {
     List<Screening> findAllByScreenIdAndToday(Long screenId);
     List<Screening> findScreeningsByToday();
     List<Screening> findAllByMovieIdAndToday(Long movieId);
-    List<Screening> findScreeningsAfterCurrentTimeStamp();
+    List<Screening> findScreeningsTodayAfterCurrentTimeStamp();
 
     List<Screening> findAllByMovieIdAndNext7Days(Long movieId);
 

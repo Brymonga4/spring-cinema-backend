@@ -377,6 +377,8 @@ CREATE TABLE public.users (
     points bigint DEFAULT 0 NOT NULL,
     premium boolean DEFAULT false NOT NULL,
     admin boolean DEFAULT false NOT NULL
+    token character varying,
+    recover_code character varying
 );
 
 

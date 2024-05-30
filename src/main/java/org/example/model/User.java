@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // O GenerationType.AUTO
     @Column(name = "user_id")
     private Long id;
 
@@ -42,4 +43,8 @@ public class User {
     @Column(nullable = false)
     private boolean admin = false;
 
+    @Column
+    private String token;
+    @Column
+    private String recover_code;
 }

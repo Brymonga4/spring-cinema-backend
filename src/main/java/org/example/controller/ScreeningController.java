@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +63,7 @@ public class ScreeningController {
     @GetMapping("/screenings/today/available")
     public ResponseEntity<List<Screening>> findScreeningsAfterCurrentTimeStamp(){
 
-        List <Screening> screenings = this.screeningService.findScreeningsAfterCurrentTimeStamp();
+        List <Screening> screenings = this.screeningService.findScreeningsTodayAfterCurrentTimeStamp();
 
         if (screenings.isEmpty())
             return ResponseEntity.notFound().build();
@@ -98,18 +100,11 @@ public class ScreeningController {
     public ResponseEntity<List<Screening>> findAllByMovieIdAndNext7Days(@PathVariable Long id){
 
         List <Screening> screenings = this.screeningService.findAllByMovieIdAndNext7Days(id);
-        List <Screening> availableScreenings = new ArrayList<>();
 
-        for(Screening s: screenings)
-            if (DateComparison.compareZonedDateTime(ZonedDateTime.now(),s.getStart_time())) {
-                availableScreenings.add(s);
-            }else{
-                System.out.println("Nada");
-            }
         if (screenings.isEmpty())
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(availableScreenings);
+        return ResponseEntity.ok(screenings);
 
     }
 
@@ -117,19 +112,11 @@ public class ScreeningController {
     public ResponseEntity<List<Screening>> findFromNowToNext7Days(){
 
         List <Screening> screenings = this.screeningService.findFromNowToNext7Days();
-        List <Screening> availableScreenings = new ArrayList<>();
 
-        for(Screening s: screenings)
-            if (DateComparison.compareZonedDateTime(ZonedDateTime.now(),s.getStart_time())) {
-                availableScreenings.add(s);
-            }else{
-                System.out.println("Nada");
-            }
-
-        if (availableScreenings.isEmpty())
+        if (screenings.isEmpty())
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(availableScreenings);
+        return ResponseEntity.ok(screenings);
 
     }
 
@@ -166,7 +153,7 @@ public class ScreeningController {
         System.out.println(ZonedDateTime.now());
         System.out.println(screening.getStart_time());
 
-        if (screening.getStart_time().isBefore(ZonedDateTime.now())) {
+        if (screening.getStart_time().isBefore(ChronoLocalDateTime.from(ZonedDateTime.now()))) {
             throw new RuntimeException("No se puede crear una función con un tiempo de inicio inferior al actual");
         }
 

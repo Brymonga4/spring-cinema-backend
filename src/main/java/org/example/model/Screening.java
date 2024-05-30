@@ -28,7 +28,7 @@ public class Screening {
     private Screen screen;
 
     @Column(name = "start_time")
-    private ZonedDateTime start_time;
+    private LocalDateTime start_time;
 
     @Column(nullable = false)
     private String audio;
@@ -36,7 +36,7 @@ public class Screening {
     @Column(nullable = false)
     private Double price;
 
-    public ZonedDateTime  getEndTime() {
+    public LocalDateTime  getEndTime() {
         if (movie != null && movie.getDuration() != null) {
 
             return start_time.plusMinutes(movie.getDuration());

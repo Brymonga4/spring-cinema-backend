@@ -23,27 +23,25 @@ public interface ScreeningRepository extends JpaRepository<Screening, Long> {
     @Query("SELECT s FROM Screening s WHERE s.id = :id")
     void findAndLockById(Long id);
 
-    @Query("SELECT s FROM Screening s WHERE FUNCTION('DATE', s.start_time) = CURRENT_DATE")
+    @Query(value = "SELECT * FROM screenings WHERE DATE(start_time) = CURRENT_DATE", nativeQuery = true)
     List<Screening> findScreeningsByToday();
 
 
-    @Query(value = "SELECT * FROM screenings WHERE start_time > CURRENT_TIMESTAMP + INTERVAL '2 hours' AND CAST(start_time AS date) = CURRENT_DATE", nativeQuery = true)
-    List<Screening> findScreeningsAfterCurrentTimeStamp();
+    @Query(value = "SELECT * FROM screenings WHERE start_time > CURRENT_TIMESTAMP AND DATE(start_time) = CURRENT_DATE", nativeQuery = true)
+    List<Screening> findScreeningsTodayAfterCurrentTimeStamp();
 
 
-    @Query(value = "SELECT * FROM screenings WHERE screen_id = :screenId AND DATE(start_time) = CURRENT_DATE \n", nativeQuery = true)
+    @Query(value = "SELECT * FROM screenings WHERE screen_id = :screenId AND DATE(start_time) = CURRENT_DATE ", nativeQuery = true)
     List<Screening> findAllByScreenIdAndToday(@Param("screenId") Long screenId);
 
-    @Query(value = "SELECT * FROM screenings WHERE movie_id = :movieId AND DATE(start_time) = CURRENT_DATE \n", nativeQuery = true)
+    @Query(value = "SELECT * FROM screenings WHERE movie_id = :movieId AND DATE(start_time) = CURRENT_DATE", nativeQuery = true)
     List<Screening> findAllByMovieIdAndToday(@Param("movieId") Long movieId);
 
-    @Query(value = "SELECT * FROM screenings WHERE movie_id = :movieId AND DATE(start_time) \n" +
-            "BETWEEN CURRENT_DATE AND (CURRENT_DATE + INTERVAL '7 days')", nativeQuery = true)
+    @Query(value = "SELECT * FROM screenings WHERE movie_id = :movieId AND DATE(start_time) BETWEEN CURRENT_DATE AND (CURRENT_DATE + INTERVAL '7 days')", nativeQuery = true)
     List<Screening> findAllByMovieIdAndNext7Days(@Param("movieId") Long movieId);
 
 
-    @Query(value = "SELECT * FROM screenings WHERE start_time BETWEEN CURRENT_TIMESTAMP \n" +
-            "AND (CURRENT_TIMESTAMP + INTERVAL '7 days')", nativeQuery = true)
+    @Query(value = "SELECT * FROM screenings WHERE start_time BETWEEN CURRENT_TIMESTAMP AND (CURRENT_TIMESTAMP + INTERVAL '7 days')", nativeQuery = true)
     List<Screening> findFromNowToNext7Days();
 
     }

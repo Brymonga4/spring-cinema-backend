@@ -36,4 +36,14 @@ public class GlobalExceptionHandler {
         });
         return new ResponseEntity<>(errors.toString(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(Exceptions.EmailAlreadyUsedException.class)
+    public ResponseEntity<String> handleEmailAlreadyUsedException(Exceptions.EmailAlreadyUsedException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(Exceptions.NicknameAlreadyUsedException.class)
+    public ResponseEntity<String> handleNicknameAlreadyUsedException(Exceptions.NicknameAlreadyUsedException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
 }

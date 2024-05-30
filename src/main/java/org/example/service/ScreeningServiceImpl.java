@@ -85,13 +85,13 @@ public class ScreeningServiceImpl implements ScreeningService {
 
 
     @Override
-    public List<Screening> findScreeningsAfterCurrentTimeStamp() {
-        List<Screening> screenings = repository.findScreeningsAfterCurrentTimeStamp();
+    public List<Screening> findScreeningsTodayAfterCurrentTimeStamp() {
+        List<Screening> screenings = repository.findScreeningsTodayAfterCurrentTimeStamp();
         for (Screening s : screenings){
             System.out.println(s.getStart_time());
         }
 
-        return repository.findScreeningsAfterCurrentTimeStamp();
+        return repository.findScreeningsTodayAfterCurrentTimeStamp();
     }
 
     @Override
