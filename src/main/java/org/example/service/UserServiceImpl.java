@@ -46,10 +46,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean existsByPassword(String password) {
+        password = this.passwordEncoder.encode(password);
+        return this.userRepository.existsByPassword(password);
+    }
+
+    @Override
     public Optional<User> findByNickname(String username) {
         System.out.println(username);
 
         return this.userRepository.findByNickname(username);
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return this.userRepository.findByEmail(email);
     }
 
     @Override

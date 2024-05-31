@@ -17,7 +17,11 @@ public interface UserService {
 
     boolean existsByEmail(String email);
 
+    boolean existsByPassword(String password);
+
     Optional<User> findByNickname(String username);
+
+    Optional<User> findByEmail(String email);
 
     // CREATE
     User save(User user);

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.dto.UserDTO;
+import org.example.dto.UserResponseDTO;
 
 @Data
 @NoArgsConstructor
@@ -47,4 +49,27 @@ public class User {
     private String token;
     @Column
     private String recover_code;
+
+
+    public UserDTO toDTO() {
+        return UserDTO.builder()
+                .nickname(this.nickname)
+                .email(this.email)
+                .build();
+    }
+
+    public UserResponseDTO toUserResponseDTO() {
+        return UserResponseDTO.builder()
+                .id(this.id)
+                .nickname(this.nickname)
+                .name(this.name)
+                .surname(this.surname)
+                .email(this.email)
+                .phone(this.phone)
+                .points(this.points)
+                .premium(this.premium)
+                .admin(this.admin)
+                .recover_code(this.recover_code)
+                .build();
+    }
 }

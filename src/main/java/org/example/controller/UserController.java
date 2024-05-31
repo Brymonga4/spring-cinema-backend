@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+import org.example.dto.UserDTO;
+import org.example.dto.UserResponseDTO;
 import org.example.exception.Exceptions;
 import org.example.model.ScreenRows;
 import org.example.model.Seat;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -65,7 +68,19 @@ public class UserController {
 
         return ResponseEntity.ok(updatedUser);
     }
+    @PostMapping("/login")
+    public ResponseEntity<UserResponseDTO> loginNoSecurity(@Valid @RequestBody UserDTO userDTO){
 
+        if(!this.userService.existsByNickname(userDTO.getNickname()))
+            if(!this.userService.existsByEmail(userDTO.getEmail()))
+                if(!this.userService.existsByPassword(userDTO.getPassword()))
+                     return ResponseEntity.badRequest().build();
+
+        User user = this.userService.findByNickname(userDTO.getNickname())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return ResponseEntity.ok(user.toUserResponseDTO());
+    }
     @DeleteMapping ("/users/{identifier}")
     public ResponseEntity<User> deleteById(@PathVariable("identifier") Long id){
 
