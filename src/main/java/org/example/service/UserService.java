@@ -35,4 +35,7 @@ public interface UserService {
     // UPDATE
     User update(User user);
 
+
+    boolean comparePassword(String rawPass, String encodedPass);
+
 }

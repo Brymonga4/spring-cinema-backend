@@ -53,8 +53,8 @@ public class User {
 
     public UserDTO toDTO() {
         return UserDTO.builder()
-                .nickname(this.nickname)
-                .email(this.email)
+                .identifier(this.nickname)
+                .identifier(this.email)
                 .build();
     }
 

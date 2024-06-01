@@ -10,16 +10,15 @@ import org.example.model.User;
 @Builder
 @Data
 public class UserDTO {
-    private String nickname;
-    private String email;
+    private String identifier;
     private String password;
 
     public User toEntity() {
 
         User user = new User();
 
-        user.setNickname(this.nickname);
-        user.setEmail(this.email);
+        user.setNickname(this.identifier);
+        user.setEmail(this.identifier);
         user.setPassword(this.password);
 
         user.setId(0L);

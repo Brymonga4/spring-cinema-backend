@@ -48,7 +48,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean existsByPassword(String password) {
         password = this.passwordEncoder.encode(password);
+
+        System.out.println(password);
         return this.userRepository.existsByPassword(password);
+    }
+    @Override
+    public boolean comparePassword(String rawPass, String encodedPass){
+        return this.passwordEncoder.matches(rawPass,encodedPass );
     }
 
     @Override

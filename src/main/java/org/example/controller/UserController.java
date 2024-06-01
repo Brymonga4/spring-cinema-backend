@@ -71,13 +71,41 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserResponseDTO> loginNoSecurity(@Valid @RequestBody UserDTO userDTO){
 
-        if(!this.userService.existsByNickname(userDTO.getNickname()))
-            if(!this.userService.existsByEmail(userDTO.getEmail()))
-                if(!this.userService.existsByPassword(userDTO.getPassword()))
-                     return ResponseEntity.badRequest().build();
 
-        User user = this.userService.findByNickname(userDTO.getNickname())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User user = this.userService.findByNickname(userDTO.getIdentifier())
+                .orElseGet(() -> this.userService.findByEmail(userDTO.getIdentifier())
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado con " + userDTO.getIdentifier())));
+
+
+        System.out.println(userDTO.getPassword());
+        System.out.println(user.getPassword());
+
+        if(!this.userService.comparePassword(userDTO.getPassword(), user.getPassword()))
+            return ResponseEntity.badRequest().build();
+
+
+        return ResponseEntity.ok(user.toUserResponseDTO());
+    }
+
+    @PostMapping("/login/user")
+    public ResponseEntity<UserResponseDTO> loginUser(@Valid @RequestBody UserDTO userDTO){
+
+        User user = new User();
+
+        if(this.userService.existsByNickname(userDTO.getIdentifier())){
+            user = this.userService.findByNickname(userDTO.getIdentifier())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con "+ userDTO.getIdentifier()));
+        }else{
+
+            if(this.userService.existsByEmail(userDTO.getIdentifier())){
+                user = this.userService.findByEmail(userDTO.getIdentifier())
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado con "+ userDTO.getIdentifier()));
+            }
+        }
+
+        if(!this.userService.existsByPassword(userDTO.getPassword()))
+            return ResponseEntity.badRequest().build();
+
 
         return ResponseEntity.ok(user.toUserResponseDTO());
     }
