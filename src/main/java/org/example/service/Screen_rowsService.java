@@ -1,5 +1,7 @@
 package org.example.service;
 
+import org.example.dto.RowsWithSeatsDTO;
+import org.example.dto.ScreenWithSeatsDTO;
 import org.example.model.ScreenRows;
 
 import java.util.List;
@@ -22,4 +24,8 @@ public interface Screen_rowsService {
 
     // UPDATE
     ScreenRows update(ScreenRows screenRows);
+
+    ScreenWithSeatsDTO createSeatsOfScreenRow(ScreenRows sr);
+
+    RowsWithSeatsDTO createSeatsOfRow(ScreenRows sr);
 }

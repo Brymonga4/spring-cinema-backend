@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,9 +23,9 @@ public class ScreenRows {
     private Screen screen;
 
     @Column(name = "row_number")
-    private Integer row_number;
+    private Integer rowNumber;
 
     @Column(name = "number_of_seats")
-    private Integer number_of_seats;
+    private Integer numberOfSeats;
 
 }

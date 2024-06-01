@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+import org.example.dto.NewScreenDTO;
+import org.example.dto.ScreenWithSeatsDTO;
 import org.example.model.Screen;
 import org.example.model.ScreenRows;
 import org.example.service.ScreenService;
@@ -74,6 +76,23 @@ public class Screen_rowsController {
 
         return ResponseEntity.ok(savedScreenRows);
     }
+
+    @PostMapping("/screenRows")
+    public ResponseEntity<ScreenWithSeatsDTO> createSeatsOfScreenRow(@Valid @RequestBody ScreenRows screenRows){
+
+        if(screenRows.getScreen().getId()!= null){
+            Screen screen = screenService.findById(screenRows.getScreen().getId())
+                    .orElseThrow(() -> new RuntimeException("No se encontró la sala"));
+            screenRows.setScreen(screen);
+        }
+
+        ScreenRows savedScreenRow = this.screen_rowService.save(screenRows);
+
+
+        return ResponseEntity.ok(this.screen_rowService.createSeatsOfScreenRow(savedScreenRow));
+    }
+
+
 
     /*
     PUT http://localhost:8080/api/movies

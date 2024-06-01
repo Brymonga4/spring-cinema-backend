@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.dto.SeatDTO;
+import org.example.dto.UserDTO;
+
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
@@ -29,5 +32,16 @@ public class Seat {
 
     @Column(name = "reserved")
     private Boolean reserved;
+
+
+    public SeatDTO toDTOWithRowNumber(int rowNumber) {
+        return SeatDTO.builder()
+                .id(this.idSeat)
+                .row_number(rowNumber)
+                .seat_number(Math.toIntExact(this.seatNumber))
+                .seat_type(this.seatType.charAt(0))
+                .available(this.reserved)
+                .build();
+    }
 
 }

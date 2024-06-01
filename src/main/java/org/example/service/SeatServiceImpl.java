@@ -32,6 +32,7 @@ public class SeatServiceImpl implements SeatService {
     }
 
     @Override
+    @Transactional
     public Seat save(Seat seat) {
 
         boolean exists = this.repository.existsByScreenRowsIdAndSeatNumber(seat.getScreenRows().getId(), seat.getSeatNumber());
@@ -48,7 +49,7 @@ public class SeatServiceImpl implements SeatService {
     public boolean seatsLeftInScreenRow(ScreenRows sr){
         long count = this.repository.countByScreenRowsId(sr.getId());
 
-        return count < sr.getNumber_of_seats();
+        return count < sr.getNumberOfSeats();
     }
 
     @Override
@@ -78,7 +79,7 @@ public class SeatServiceImpl implements SeatService {
             int totalSeatsAfterAdding = (int) existingSeatsCount + additionalSeatsPerRow.get(rowId);
 
             // Comprobar si se excede la capacidad de la fila
-            if (totalSeatsAfterAdding > screenRow.getNumber_of_seats()) {
+            if (totalSeatsAfterAdding > screenRow.getNumberOfSeats()) {
                 throw new IllegalStateException("La capacidad de la fila " + rowId + " será excedida al añadir estos asientos.");
             }
 

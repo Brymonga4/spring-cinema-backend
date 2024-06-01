@@ -26,3 +26,7 @@ INSERT INTO public.users (
       (
           3, 'admin', '$2a$12$AxiZIgsRdefj/pQEGbgOfulSqfRPhxty/egt/u.8g0R1X2pTI8P3G', 'Alice', 'Johnson', 'alicejohnson@example.com', '123-456-7893', 300, false, true, 'dummyToken3', 'dummyRecoverCode3'
       )ON CONFLICT (user_id) DO NOTHING;
+
+INSERT INTO public.screens (id_screen, supports, id_cinema) VALUES
+                                                                (1, 'Dolby Atmos', 1),
+                                                                (2, 'IMAX', 1) ON CONFLICT (id_screen) DO NOTHING;
