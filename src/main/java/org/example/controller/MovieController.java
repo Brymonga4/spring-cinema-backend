@@ -6,19 +6,26 @@ import org.example.model.Movie;
 import org.example.service.MovieService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
-import java.util.Map;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
+
+import static org.example.util.MovieTitleUtil.getFileExtension;
+import static org.example.util.MovieTitleUtil.sanitizeTitle;
+
 
 @RestController
 @RequestMapping("/api")
 public class MovieController {
 
     private MovieService service;
+
+    private static final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     public MovieController(MovieService service) {
         this.service = service;
@@ -55,7 +62,7 @@ public class MovieController {
       /*
     POST http://localhost:8080/api/movies
      */
-
+ /*
     @PostMapping("/movies")
     public ResponseEntity<MovieDTO> create(@Valid @RequestBody Movie movie){
 
@@ -66,20 +73,31 @@ public class MovieController {
 
         return ResponseEntity.ok(savedMovie);
     }
+    */
+
+
+    @PostMapping(value = "/movies", consumes = "multipart/form-data")
+    public ResponseEntity<MovieDTO> create(@Valid @RequestPart("movie") Movie movie,
+                                           @RequestPart("file") MultipartFile file) {
+        if (movie.getId() != null)
+            return ResponseEntity.badRequest().build();
+
+        return handleFileUploadAndSaveMovie(movie, file);
+    }
 
     /*
     PUT http://localhost:8080/api/movies
      */
-    @PutMapping("/movies/{id}")
-    public ResponseEntity<MovieDTO> update(@PathVariable Long id, @Valid @RequestBody Movie movie){
+    @PutMapping(value = "/movies/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<MovieDTO> update(@PathVariable Long id,
+                                           @Valid @RequestPart("movie") Movie movie,
+                                           @RequestPart("file") MultipartFile file) {
 
-        System.out.println(this.service.findById(id).isEmpty());
-        if(this.service.findById(id).isEmpty())
+        if (service.findById(id).isEmpty())
             return ResponseEntity.badRequest().build();
-        movie.setId(id);
-        MovieDTO updatedMovie = this.service.update(movie);
 
-        return ResponseEntity.ok(updatedMovie);
+        movie.setId(id);
+        return handleFileUploadAndSaveMovie(movie, file);
     }
 
     @DeleteMapping ("/movies/{identifier}")
@@ -105,7 +123,43 @@ public class MovieController {
         return ResponseEntity.ok(moviesDTO);
     }
 
+    private ResponseEntity<MovieDTO> handleFileUploadAndSaveMovie(Movie movie, MultipartFile file) {
+        try {
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                try {
+                    Files.createDirectories(uploadPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return ResponseEntity.status(500).body(null);
+                }
+            }
 
+            if (Objects.equals(file.getOriginalFilename(), "")) {
+                throw new RuntimeException("Título de archivo vacío");
+            }
+
+            String sanitizedTitle = sanitizeTitle(movie.getTitle());
+            String fileExtension = getFileExtension(file.getOriginalFilename());
+            String fileName = sanitizedTitle + fileExtension;
+
+            Path filePath = uploadPath.resolve(fileName);
+
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+            }
+
+            Files.copy(file.getInputStream(), filePath);
+
+            movie.setImage(fileName);
+
+            MovieDTO savedMovie = this.service.save(movie);
+            return ResponseEntity.ok(savedMovie);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
 
 
