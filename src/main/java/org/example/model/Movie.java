@@ -3,6 +3,7 @@ package org.example.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor  // Genera un constructor sin argumentos
 @AllArgsConstructor // Genera un constructor con un argumento para cada campo en la clase
 @Entity
+@Builder
 @Table(name = "movies")
 public class Movie {
     @Id

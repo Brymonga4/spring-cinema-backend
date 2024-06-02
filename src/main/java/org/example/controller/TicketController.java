@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
-import org.example.dto.TicketDTO;
+import org.example.dto.*;
 import org.example.model.*;
 import org.example.service.*;
 import org.example.util.IdGenerator;
@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,14 +21,16 @@ public class TicketController {
     private final ScreeningService screeningService;
     private final BookingService bookingService;
     private final SeatService seatService;
+    private final MovieService movieService;
 
     private final UserService userService;
 
-    public TicketController(TicketService ticketService, ScreeningService screeningService, BookingService bookingService, SeatService seatService, UserService userService){
+    public TicketController(TicketService ticketService, ScreeningService screeningService, BookingService bookingService, SeatService seatService, MovieService movieService, UserService userService){
         this.ticketService = ticketService;
         this.screeningService = screeningService;
         this.bookingService = bookingService;
         this.seatService = seatService;
+        this.movieService = movieService;
         this.userService = userService;
     }
 
@@ -61,8 +64,8 @@ public class TicketController {
         return ResponseEntity.ok(savedSTicket);
     }
 
-    @PostMapping("/screenings/{id}/ticket/buy")
-    public ResponseEntity<Ticket> buyTicketFromScreeningById(@Valid @RequestBody TicketDTO ticketDTO){
+    @PostMapping("/screenings/ticket/buy")
+    public ResponseEntity<Ticket> buyTicket(@Valid @RequestBody TicketDTO ticketDTO){
 
         System.out.println(ticketDTO);
 
@@ -73,6 +76,102 @@ public class TicketController {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         Ticket ticket = this.ticketService.convertToEntity(ticketDTO);
+
+        if(user.getId()!=null){
+            Booking booking = new Booking();
+            System.out.println(booking);
+            booking.setId(IdGenerator.randomString(9));
+            booking.setUser(user);
+            booking = bookingService.save(booking);
+
+            ticket.setBooking(booking);
+        }
+
+        System.out.println(ticket);
+
+        Ticket savedSTicket = this.ticketService.save(ticket);
+        return ResponseEntity.ok(savedSTicket);
+    }
+
+    @PostMapping("/screenings/ticket/buyNoSecurity")
+    public ResponseEntity<List<FullTicketWithDetailsDTO>> buyTicketNoSecurity(@Valid @RequestBody TicketWithUserDTO ticketWithUserDTO){
+
+        System.out.println(ticketWithUserDTO);
+
+        User user = this.userService.findByNickname(ticketWithUserDTO.getUserIdentifier())
+                .orElseGet(() -> this.userService.findByEmail(ticketWithUserDTO.getUserIdentifier())
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado con " + ticketWithUserDTO.getUserIdentifier())));
+
+        List<Ticket> tickets = this.ticketService.convertToEntitiesNoSecure(ticketWithUserDTO);
+
+        for(Ticket t: tickets){
+            System.out.println(t);
+        }
+
+        Booking booking = new Booking();
+        System.out.println("nuevo booking "+ booking);
+        booking.setId(IdGenerator.randomString(9));
+        booking.setUser(user);
+        booking = bookingService.save(booking);
+
+        System.out.println("booking con identificador generado"+ booking);
+
+        List<FullTicketWithDetailsDTO> fullTickets = new ArrayList<>();
+
+        System.out.println("vamos a recorrer los tickets del dto y crearlos");
+
+        for (Ticket t: tickets){
+            t.setBooking(booking);
+
+            ScreeningDayAndHourDTO sdahDTO = this.screeningService.toScreeningDayAndHourDTO(t.getScreening().getStart_time());
+            double ticketPrice = this.ticketService.calculateTickePrice(t);
+
+            FullTicketWithDetailsDTO fullTicket =
+                    FullTicketWithDetailsDTO.builder()
+                            .identifier(t.getBooking().getId())
+                            .screeningDTO(ScreeningDTO.builder()
+                                    .Id(t.getScreening().getId())
+                                    .screen(Math.toIntExact(t.getScreening().getScreen().getId()))
+                                    .movieTitle(t.getScreening().getMovie().getTitle())
+                                    .screeningDayAndHourDTO(sdahDTO)
+                                    .cinemaName(t.getScreening().getScreen().getCinema().getName())
+                                    .screenPrice(t.getScreening().getPrice())
+                                    .audio(t.getScreening().getAudio())
+                                    .build())
+                            .rowAndSeat("F "+t.getSeat().getScreenRows().getRowNumber() +" B "+ t.getSeat().getSeatNumber())
+                            .totalPrice(ticketPrice)
+                            .build();
+
+            System.out.println("fullticket DTO"+ sdahDTO);
+
+            fullTickets.add(fullTicket);
+
+            Ticket savedSTicket = this.ticketService.save(t);
+        }
+
+        if (fullTickets.isEmpty()){
+            throw new RuntimeException("No hay asientos disponibles");
+        }
+
+        return ResponseEntity.ok(fullTickets);
+    }
+
+    @PostMapping("/screenings/{screeningId}/seat/{seatId}/buy")
+    public ResponseEntity<Ticket> buyTicketFromScreeningById(@PathVariable Long screeningId,
+                                                             @PathVariable Long seatId){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userService.findByNickname(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+
+
+        Ticket ticket = this.ticketService.convertToEntity(TicketDTO.builder()
+                                                            .screening_id(screeningId)
+                                                            .seat_id(seatId)
+                                                            .build());
 
         if(user.getId()!=null){
             Booking booking = new Booking();

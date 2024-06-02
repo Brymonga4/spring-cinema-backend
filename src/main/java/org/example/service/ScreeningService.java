@@ -1,10 +1,12 @@
 package org.example.service;
 
 import org.example.dto.MovieDTO;
+import org.example.dto.ScreeningDayAndHourDTO;
 import org.example.model.Movie;
 import org.example.model.Screening;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +35,7 @@ public interface ScreeningService {
     Screening update(Screening screening);
 
 
+    ScreeningDayAndHourDTO toScreeningDayAndHourDTO(LocalDateTime startTime);
 
 
 }

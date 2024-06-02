@@ -1,12 +1,15 @@
 package org.example.service;
 
 import jakarta.transaction.Transactional;
+import org.example.dto.ScreeningDayAndHourDTO;
 import org.example.model.Screening;
 import org.example.repository.ScreeningRepository;
 import org.example.util.DateComparison;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,6 +63,21 @@ public class ScreeningServiceImpl implements ScreeningService {
         return this.save(screening);
     }
 
+    @Override
+    public ScreeningDayAndHourDTO toScreeningDayAndHourDTO(LocalDateTime startTime) {
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String date = startTime.toLocalDate().format(dateFormatter);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        String time = startTime.toLocalTime().format(timeFormatter);
+
+        return ScreeningDayAndHourDTO.builder()
+                                    .screeningDay(date)
+                                    .screeningStartTime(time)
+                                    .build();
+    }
+
     public boolean isOverlapping(Screening newScreening){
         List<Screening> screenings = this.repository.findAllByScreen_Id(newScreening.getScreen().getId());
 
@@ -108,6 +126,7 @@ public class ScreeningServiceImpl implements ScreeningService {
     public List<Screening> findFromNowToNext7Days() {
         return repository.findFromNowToNext7Days();
     }
+
 
 
 }

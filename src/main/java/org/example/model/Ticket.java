@@ -31,4 +31,5 @@ public class Ticket {
     @Column(nullable = false)
     private boolean available = true;
 
+
 }

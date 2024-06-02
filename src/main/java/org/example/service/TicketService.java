@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dto.MovieDTO;
 import org.example.dto.TicketDTO;
+import org.example.dto.TicketWithUserDTO;
 import org.example.model.Movie;
 import org.example.model.Ticket;
 import org.example.model.User;
@@ -31,4 +32,9 @@ public interface TicketService {
 
     Ticket convertToEntity(TicketDTO ticketDTO);
 
+    Ticket convertToEntityNoSecure(TicketWithUserDTO ticketWithUserDTO);
+
+    double calculateTickePrice(Ticket ticket);
+
+    List<Ticket> convertToEntitiesNoSecure(TicketWithUserDTO ticketWithUserDTO);
 }

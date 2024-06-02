@@ -59,8 +59,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findByNickname(String username) {
-        System.out.println(username);
-
         return this.userRepository.findByNickname(username);
     }
 

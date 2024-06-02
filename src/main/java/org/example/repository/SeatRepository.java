@@ -24,4 +24,6 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     long countByScreenRowsId(Long id);
 
+
+
 }

@@ -2,6 +2,7 @@ package org.example.controller;
 
 import jakarta.validation.Valid;
 import org.example.dto.MovieDTO;
+import org.example.dto.ScreeningDTO;
 import org.example.model.Movie;
 import org.example.model.Screen;
 import org.example.model.Screening;
@@ -132,20 +133,21 @@ public class ScreeningController {
 
 
 
-       /*
-    POST http://localhost:8080/api/movies
-     */
 
     @PostMapping("/screenings")
-    public ResponseEntity<Screening> create(@Valid @RequestBody Screening screening){
+    public ResponseEntity<ScreeningDTO> create(@Valid @RequestBody ScreeningDTO screeningDTO){
+
+        Screening screening = screeningDTO.toEntity();
 
         if(screening.getScreen().getId()!= null){
             Screen screen = screenService.findById(screening.getScreen().getId())
                     .orElseThrow(() -> new RuntimeException("No se encontró la sala"));
             screening.setScreen(screen);
+
+            //Recuperar cine
         }
-        if(screening.getMovie().getId()!= null){
-            MovieDTO movieDTO = movieService.findById(screening.getMovie().getId())
+        if(screening.getMovie().getTitle()!= null){
+            MovieDTO movieDTO = movieService.findMovieByTitle(screening.getMovie().getTitle())
                     .orElseThrow(() -> new RuntimeException("No se encontró la película"));
             screening.setMovie(movieService.convertToEntity(movieDTO));
         }
@@ -159,7 +161,7 @@ public class ScreeningController {
 
         Screening savedScreening = this.screeningService.save(screening);
 
-        return ResponseEntity.ok(savedScreening);
+        return ResponseEntity.ok(savedScreening.toScreeningDTO());
     }
 
     /*
