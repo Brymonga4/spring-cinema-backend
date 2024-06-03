@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+import org.example.dto.SeatDTO;
 import org.example.model.ScreenRows;
 import org.example.model.Seat;
 import org.example.service.Screen_rowsService;
@@ -45,6 +46,18 @@ public class SeatController {
     public ResponseEntity<List<Seat>> findAllSeatsInScreen(@PathVariable Long id){
 
         List <Seat> seats = this.seatService.findAllSeatsInScreen(id);
+
+        if (seats.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(seats);
+
+    }
+
+    @GetMapping("screening/{id}/seats")
+    public ResponseEntity<List<SeatDTO>> findAllSeatsInScreening(@PathVariable Long id){
+
+        List <SeatDTO> seats = this.seatService.findAllSeatsOfScreeningId(id);
 
         if (seats.isEmpty())
             return ResponseEntity.notFound().build();

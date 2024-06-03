@@ -38,6 +38,16 @@ dependencies {
     // Jackson
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.4'
 
+    //email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    //QR
+    implementation 'com.google.zxing:core:3.4.1'
+    implementation 'com.google.zxing:javase:3.4.1'
+
+    //PDF
+    implementation 'com.itextpdf:itext7-core:7.2.2'
+
 }
 
 tasks.named('test') {

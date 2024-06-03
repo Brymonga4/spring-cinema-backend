@@ -1,8 +1,10 @@
 package org.example.service;
 
 import org.example.dto.MovieDTO;
+import org.example.dto.SeatDTO;
 import org.example.model.Movie;
 import org.example.model.Seat;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +28,10 @@ public interface SeatService {
     // UPDATE
     Seat update(Seat seat);
 
+    List<Seat> findAvailableSeatsByScreeningId(@Param("screeningId") Long screeningId);
 
+    List<Seat> findUnavailableSeatsByScreeningId(@Param("screeningId") Long screeningId);
+
+    List<SeatDTO> findAllSeatsOfScreeningId(Long screeningId);
 
 }

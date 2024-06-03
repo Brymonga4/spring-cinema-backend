@@ -1,24 +1,28 @@
 package org.example.service;
 
 import jakarta.transaction.Transactional;
+import org.example.dto.SeatDTO;
 import org.example.model.ScreenRows;
 import org.example.model.Seat;
+import org.example.repository.ScreenRepository;
+import org.example.repository.Screen_rowsRepository;
 import org.example.repository.SeatRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class SeatServiceImpl implements SeatService {
 
-    private SeatRepository repository;
+    private final SeatRepository repository;
 
-    public SeatServiceImpl (SeatRepository repository){
+    private final Screen_rowsRepository screenRowsRepository;
+
+    public SeatServiceImpl (SeatRepository repository, Screen_rowsRepository screenRowsRepository){
         this.repository = repository;
+        this.screenRowsRepository = screenRowsRepository;
     }
 
     @Override
@@ -111,6 +115,44 @@ public class SeatServiceImpl implements SeatService {
     public Seat update(Seat seat) {
         this.repository.findAndLockById(seat.getIdSeat());
         return this.repository.save(seat);
+    }
+
+    @Override
+    public List<Seat> findAvailableSeatsByScreeningId(Long screeningId) {
+
+        return this.repository.findAvailableSeatsByScreeningId(screeningId);
+
+
+    }
+
+    @Override
+    public List<Seat> findUnavailableSeatsByScreeningId(Long screeningId) {
+        return this.repository.findUnavailableSeatsByScreeningId(screeningId);
+    }
+
+    @Override
+    public List<SeatDTO> findAllSeatsOfScreeningId(Long screeningId) {
+        List<Seat> availableSeats = this.findAvailableSeatsByScreeningId(screeningId);
+        availableSeats.forEach(seat -> seat.setReserved(true));
+
+        List<Seat> unavailableSeats = this.findUnavailableSeatsByScreeningId(screeningId);
+        unavailableSeats.forEach(seat -> seat.setReserved(false));
+
+        List<Seat> allSeats = Stream.concat(availableSeats.stream(), unavailableSeats.stream())
+                .sorted(Comparator.comparing(Seat::getIdSeat))
+                .toList();
+
+
+        List<SeatDTO>  allSeatsDTO = new ArrayList<>();
+        for (Seat s: allSeats){
+           ScreenRows sr = this.screenRowsRepository.findById(s.getScreenRows().getId())
+                    .orElseThrow(()-> new RuntimeException("No existe esa fila"));
+            s.setScreenRows(sr);
+            SeatDTO seatDTO = s.toDTOWithRowNumber(sr.getRowNumber());
+            allSeatsDTO.add(seatDTO);
+        }
+
+        return allSeatsDTO;
     }
 
 

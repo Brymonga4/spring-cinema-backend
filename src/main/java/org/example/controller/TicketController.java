@@ -1,15 +1,20 @@
 package org.example.controller;
 
+import com.google.zxing.WriterException;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.example.dto.*;
 import org.example.model.*;
 import org.example.service.*;
+import org.example.service.email.EmailService;
+import org.example.service.email.PdfService;
 import org.example.util.IdGenerator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,15 +28,21 @@ public class TicketController {
     private final SeatService seatService;
     private final MovieService movieService;
 
+    private final EmailService emailService;
+
     private final UserService userService;
 
-    public TicketController(TicketService ticketService, ScreeningService screeningService, BookingService bookingService, SeatService seatService, MovieService movieService, UserService userService){
+    private final PdfService pdfService;
+
+    public TicketController(TicketService ticketService, ScreeningService screeningService, BookingService bookingService, SeatService seatService, MovieService movieService, EmailService emailService, UserService userService, PdfService pdfService){
         this.ticketService = ticketService;
         this.screeningService = screeningService;
         this.bookingService = bookingService;
         this.seatService = seatService;
         this.movieService = movieService;
+        this.emailService = emailService;
         this.userService = userService;
+        this.pdfService = pdfService;
     }
 
     @GetMapping("/ticket/{id}")
@@ -189,4 +200,52 @@ public class TicketController {
         return ResponseEntity.ok(savedSTicket);
     }
 
+    @PostMapping("/sendEmailTest")
+    public ResponseEntity<String> sendEmailTest(@Valid @RequestBody String email){
+        try {
+            this.emailService.sendEmail("brymonga@gmail.com", "probando", email);
+        }catch (MessagingException e){
+            throw new RuntimeException("Algo fallo");
+        }
+        return ResponseEntity.ok("Correo envia satisfactoriamente");
+    }
+
+    @PostMapping("/sendEmailWithQR")
+    public ResponseEntity<String> sendEmailWithQR(@Valid @RequestBody String embailBody) {
+
+        try {
+            String identifier = "ABCDEFGHI"; // Usa tu lógica para generar el identificador
+            emailService.sendEmailWithQRCode("brymonga@gmail.com",
+                                            "Mensaje enviado desde springboot",
+                                                embailBody, identifier);
+        } catch (MessagingException | IOException | WriterException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+
+        return ResponseEntity.ok("Todo va bien");
+    }
+
+
+    @PostMapping("/sendEmailWithPDF")
+    public ResponseEntity<String> sendEmailWithPDF(@Valid @RequestBody String embailBody) {
+
+        try {
+            String identifier = "ABCDEFGHI"; // Usa tu lógica para generar el identificador
+
+            byte[] pdfBytes = pdfService.generatePdfWithQrCode(identifier,embailBody);
+
+            emailService.sendEmailWithPdf("brymonga@gmail.com",
+                    "Mensaje enviado desde spring",
+                    "Estamos haciendo la petición desde postman",
+                        identifier, pdfBytes);
+        } catch (MessagingException | IOException | WriterException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return ResponseEntity.ok("Todo va bien");
+    }
 }
