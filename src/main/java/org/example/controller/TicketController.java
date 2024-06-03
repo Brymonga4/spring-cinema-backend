@@ -233,7 +233,7 @@ public class TicketController {
         try {
             String identifier = "ABCDEFGHI"; // Usa tu lógica para generar el identificador
 
-            byte[] pdfBytes = pdfService.generatePdfWithQrCode(identifier,embailBody);
+            byte[] pdfBytes = pdfService.generatePdfWithQrCodeAndDesign(identifier,embailBody);
 
             emailService.sendEmailWithPdf("brymonga@gmail.com",
                     "Mensaje enviado desde spring",

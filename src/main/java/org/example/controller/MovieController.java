@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+import net.coobird.thumbnailator.Thumbnails;
 import org.example.dto.MovieDTO;
 import org.example.model.Movie;
 import org.example.service.MovieService;
@@ -149,7 +150,9 @@ public class MovieController {
                 Files.delete(filePath);
             }
 
-            Files.copy(file.getInputStream(), filePath);
+            Thumbnails.of(file.getInputStream())
+                    .size(386, 546)
+                    .toFile(filePath.toFile());
 
             movie.setImage(fileName);
 
