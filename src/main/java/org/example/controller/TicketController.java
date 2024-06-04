@@ -162,6 +162,16 @@ public class TicketController {
 
         if (fullTickets.isEmpty()){
             throw new RuntimeException("No hay asientos disponibles");
+        }else{
+            try {
+                byte[] pdfBytes = pdfService.generatePdfOfFullTicket(fullTickets);
+                emailService.sendEmailWithPdf("brymonga@gmail.com",
+                        "Entrada de Cine - FilMMes",
+                        "Muchas gracias por efectuar su compra.",
+                        booking.getId(), pdfBytes);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return ResponseEntity.ok(fullTickets);

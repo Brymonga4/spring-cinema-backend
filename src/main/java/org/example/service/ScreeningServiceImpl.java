@@ -4,13 +4,10 @@ import jakarta.transaction.Transactional;
 import org.example.dto.ScreeningDayAndHourDTO;
 import org.example.model.Screening;
 import org.example.repository.ScreeningRepository;
-import org.example.util.DateComparison;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -66,7 +63,7 @@ public class ScreeningServiceImpl implements ScreeningService {
     @Override
     public ScreeningDayAndHourDTO toScreeningDayAndHourDTO(LocalDateTime startTime) {
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         String date = startTime.toLocalDate().format(dateFormatter);
 
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");

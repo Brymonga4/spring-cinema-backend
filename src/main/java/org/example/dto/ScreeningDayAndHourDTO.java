@@ -19,7 +19,7 @@ public class ScreeningDayAndHourDTO {
 
 
     public LocalDateTime converToLocalDateTime(){
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
         LocalDate date = LocalDate.parse(screeningDay, dateFormatter);

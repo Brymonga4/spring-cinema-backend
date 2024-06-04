@@ -3,21 +3,16 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import org.example.dto.MovieDTO;
 import org.example.dto.ScreeningDTO;
-import org.example.model.Movie;
 import org.example.model.Screen;
 import org.example.model.Screening;
 import org.example.service.MovieService;
 import org.example.service.ScreenService;
 import org.example.service.ScreeningService;
-import org.example.util.DateComparison;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoLocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController

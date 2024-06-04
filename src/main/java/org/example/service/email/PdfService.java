@@ -15,17 +15,22 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.*;
+import org.example.dto.FullTicketWithDetailsDTO;
 import org.springframework.stereotype.Service;
 
 
 import javax.imageio.ImageIO;
 
 import java.awt.image.BufferedImage;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 public class PdfService {
 
     private final QRCodeService qrCodeService;
+
+    private static final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     public PdfService(QRCodeService qrCodeService) {
         this.qrCodeService = qrCodeService;
@@ -179,6 +184,161 @@ public class PdfService {
         document.add(dataTable2);
 
 
+        document.close();
+        return baos.toByteArray();
+    }
+
+    public byte[] generatePdfOfFullTicket(java.util.List<FullTicketWithDetailsDTO> fullTicketsDTO) throws Exception {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(baos);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        Document document = new Document(pdfDoc, PageSize.A4);
+        document.setMargins(50, 50, 50, 50);
+
+        Color blue = new DeviceRgb(15, 72, 122);
+        Color white = new DeviceRgb(255, 255, 255);
+
+        PdfFont bold = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+        PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+        PdfFont dataFont = PdfFontFactory.createFont(StandardFonts.COURIER);
+
+        Path uploadPath = Paths.get(UPLOAD_DIR);
+        int i = 0;
+
+    for(FullTicketWithDetailsDTO ft: fullTicketsDTO){
+
+        //Cabecera del PDF
+        float[] columnWidth = {25,75};
+        Table cabecera = new Table(UnitValue.createPercentArray(columnWidth));
+        cabecera.setWidth(UnitValue.createPercentValue(100));
+
+
+        //Creamos dos celdas
+        Cell cine = new Cell().add(new Paragraph("CINE Filmmes")
+                .setFont(bold).setFontSize(20).setFontColor(white));
+        Cell titulo = new Cell().add(new Paragraph("ENTRADA VÁLIDA PARA EL ACCESO DIRECTO A LA SALA")
+                .setFont(bold).setFontSize(11));
+
+        cine.setBackgroundColor(blue).setBorder(null)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+        titulo.setBorder(null).setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setHorizontalAlignment(HorizontalAlignment.CENTER)
+                .setPadding(15);
+
+        // Añadimos las celdas a la tabla de la cabecera
+        cabecera.addCell(cine);
+        cabecera.addCell(titulo);
+
+        //Generamos la imagen del QR del identificador
+        BufferedImage qrImage = qrCodeService.generateQRCodeImage(ft.getIdentifier());
+
+        ByteArrayOutputStream qrBaos = new ByteArrayOutputStream();
+        ImageIO.write(qrImage, "png", qrBaos);
+        Image qrCode = new Image(ImageDataFactory
+                                .create(qrBaos.toByteArray()))
+                                .scaleToFit(300,300);
+
+        // Imagen de la película
+        Image movieImage = new Image(ImageDataFactory
+                                    .create(uploadPath+"/"+ft.getScreeningDTO().getMovieTitle()+".jpg"))
+                                    .scaleToFit(280,280);
+
+        // Tabla de QR e imagen de peli
+        float[] columnWidthImages = {40,60};
+        Table imagesTable = new Table(UnitValue.createPercentArray(columnWidthImages));
+        imagesTable.setWidth(UnitValue.createPercentValue(100));
+        imagesTable.setHeight(UnitValue.createPercentValue(100));
+
+        Cell qrCell = new Cell().add(qrCode);
+        Cell movieImageCell = new Cell().add(movieImage);
+
+        qrCell.setBorder(null).setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+
+        movieImageCell.setBorder(null).setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setHorizontalAlignment(HorizontalAlignment.CENTER)
+                .setPadding(5);
+
+        // Añadimos las celdas a la tabla de imágenes
+        imagesTable.addCell(qrCell);
+        imagesTable.addCell(movieImageCell);
+
+
+        Paragraph frasePeli = new Paragraph()
+                                    .add("Película: ").setFont(dataFont).setFontColor(blue)
+                                    .add(new Paragraph()
+                                            .add(ft.getScreeningDTO().getMovieTitle()).setFont(bold));
+
+        Paragraph fraseSesion = new Paragraph()
+                                    .add("Sesion: ").setFont(dataFont).setFontColor(blue)
+                                    .add(new Paragraph()
+                                            .add(ft.getScreeningDTO().getScreeningDayAndHourDTO().getScreeningStartTime()+" h").setFont(bold));
+
+        Paragraph fraseSala = new Paragraph()
+                                    .add("Sala: ").setFont(dataFont).setFontColor(blue)
+                                    .add(new Paragraph()
+                                            .add(String.valueOf(ft.getScreeningDTO().getScreen())).setFont(bold));
+
+
+        Paragraph fraseDia = new Paragraph()
+                                    .add("Día: ").setFont(dataFont).setFontColor(blue)
+                                    .add(new Paragraph()
+                                            .add(ft.getScreeningDTO().getScreeningDayAndHourDTO().getScreeningDay()).setFont(bold));
+
+        Paragraph fraseCine = new Paragraph()
+                                    .add("Cine: ").setFont(dataFont).setFontColor(blue)
+                                    .add(new Paragraph()
+                                            .add("CINE FilMM").setFont(bold));
+
+        Paragraph fraseButacas = new Paragraph()
+                                    .add("Butacas: ").setFont(dataFont).setFontColor(blue)
+                                    .add(new Paragraph()
+                                            .add(ft.getRowAndSeat()).setFont(bold));
+
+        Paragraph frasePrecio = new Paragraph()
+                                    .add("Precio: ").setFont(dataFont).setFontColor(blue)
+                                    .add(new Paragraph()
+                                            .add(ft.getTotalPrice()+" €").setFont(bold));
+
+        float[] columnWidthData1 = {50,50};
+        Table dataTable1 = new Table(UnitValue.createPercentArray(columnWidthData1));
+        dataTable1.setWidth(UnitValue.createPercentValue(90));
+
+        float[] columnWidthData2 = {100};
+        Table dataTable2 = new Table(UnitValue.createPercentArray(columnWidthData2));
+        dataTable2.setWidth(UnitValue.createPercentValue(90));
+
+        Cell dataOne = new Cell().add(frasePeli).add(fraseSesion).add(fraseSala)
+                .setBorder(Border.NO_BORDER);
+        Cell dataTwo = new Cell().add(fraseDia).add(fraseCine)
+                .setBorder(Border.NO_BORDER);
+        Cell dataThree = new Cell().add(fraseButacas).add(frasePrecio)
+                .setBorder(Border.NO_BORDER);
+
+        dataTable1.addCell(dataOne).addCell(dataTwo);
+        dataTable2.addCell(dataThree);
+
+
+        document.add(cabecera);
+        document.add(imagesTable);
+        // Añadir identificador
+        document.add(new Paragraph(ft.getIdentifier()).setTextAlignment(TextAlignment.CENTER));
+
+        document.add(dataTable1);
+        document.add(dataTable2);
+
+        // Para comprobar que es la última iteración y no crear una página extra
+        if(i++ == fullTicketsDTO.size() - 1){
+            document.close();
+        }else{
+            document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
+        }
+
+    }
         document.close();
         return baos.toByteArray();
     }
