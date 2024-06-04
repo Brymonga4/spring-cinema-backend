@@ -68,7 +68,7 @@ public class Screen_rowsServiceImpl implements Screen_rowsService{
         for (int i = 0;sr.getNumberOfSeats() > i; i++){
             Seat seat = new Seat(
                     null,sr,
-                    (long) i+1, "W",false
+                    (long) i+1, "N",false
             );
             System.out.println(seat);
             Seat seatCreated = this.seatRepository.save(seat);
