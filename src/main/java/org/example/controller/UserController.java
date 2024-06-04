@@ -181,7 +181,7 @@ public class UserController {
 
             String sanitizedTitle = sanitizeTitle(nickname);
             String fileExtension = getFileExtension(file.getOriginalFilename());
-            String fileName = sanitizedTitle + fileExtension;
+            String fileName = "avatar_"+sanitizedTitle + fileExtension;
 
             Path filePath = uploadPath.resolve(fileName);
 

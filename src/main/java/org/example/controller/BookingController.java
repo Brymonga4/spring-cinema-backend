@@ -1,15 +1,15 @@
 package org.example.controller;
 
-import org.example.dto.FullTicketWithDetailsDTO;
-import org.example.dto.MovieDTO;
-import org.example.dto.ScreeningDTO;
-import org.example.dto.ScreeningDayAndHourDTO;
+import jakarta.validation.Valid;
+import org.example.dto.*;
 import org.example.model.*;
 import org.example.service.*;
 import org.example.service.email.EmailService;
 import org.example.service.email.PdfService;
+import org.example.service.email.QRCodeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,9 @@ public class BookingController {
 
     private final Screen_rowsService screenRowsService;
 
-    public BookingController(BookingService bookingService, TicketService ticketService, ScreeningService screeningService, SeatService seatService, MovieService movieService, UserService userService, Screen_rowsService screenRowsService){
+    private final QRCodeService qrCodeService;
+
+    public BookingController(BookingService bookingService, TicketService ticketService, ScreeningService screeningService, SeatService seatService, MovieService movieService, UserService userService, Screen_rowsService screenRowsService, QRCodeService qrCodeService){
         this.bookingService = bookingService;
         this.ticketService = ticketService;
         this.screeningService = screeningService;
@@ -34,6 +36,7 @@ public class BookingController {
         this.movieService = movieService;
         this.userService = userService;
         this.screenRowsService = screenRowsService;
+        this.qrCodeService = qrCodeService;
     }
 
     @PostMapping("/bookings/validate")
@@ -96,6 +99,16 @@ public class BookingController {
 
         return ResponseEntity.ok(fullTickets);
 
+    }
+
+    @PostMapping(value = "decodeQR", consumes = "multipart/form-data")
+    public ResponseEntity<String> decodeQR(@RequestPart("file") MultipartFile file){
+
+        System.out.println(file);
+
+        String decoded = this.qrCodeService.decodeQRCodeInImage(file);
+
+        return ResponseEntity.ok(decoded);
     }
 
 
