@@ -44,4 +44,13 @@ public class Seat {
                 .build();
     }
 
+    public double convert() {
+        return switch (seatType.charAt(0)) {
+            case 'N' -> 1.0;
+            case 'P' -> 1.25;
+            case 'W' -> 0.5;
+            default -> throw new IllegalArgumentException("Carácter no válido ");
+        };
+    }
+
 }

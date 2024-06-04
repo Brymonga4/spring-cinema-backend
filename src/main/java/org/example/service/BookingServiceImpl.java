@@ -3,6 +3,7 @@ package org.example.service;
 import jakarta.transaction.Transactional;
 import org.example.model.Booking;
 import org.example.model.Ticket;
+import org.example.model.User;
 import org.example.repository.BookingRepository;
 import org.example.repository.TicketRepository;
 import org.springframework.stereotype.Service;
@@ -55,4 +56,5 @@ public class BookingServiceImpl implements BookingService{
         this.bookingRepository.findAndLockById(booking.getId());
         return this.bookingRepository.save(booking);
     }
+
 }

@@ -2,6 +2,7 @@ package org.example.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.example.dto.FullTicketWithDetailsDTO;
 import org.example.dto.MovieDTO;
 import org.example.dto.TicketDTO;
 import org.example.dto.TicketWithUserDTO;
@@ -110,7 +111,7 @@ public class TicketServiceImpl implements TicketService {
         Screening screening = screeningRepository.findById(ticket.getScreening().getId())
                 .orElseThrow(() -> new EntityNotFoundException("No hay función con id : " + ticket.getScreening().getId()));
 
-        double seatType = convert(ticket.getSeat().getSeatType().charAt(0));
+        double seatType = ticket.getSeat().convert();
         return seatType * screening.getPrice();
     }
 
@@ -167,12 +168,15 @@ public class TicketServiceImpl implements TicketService {
         return tickets;
     }
 
-    public double convert(char input) {
-        return switch (input) {
-            case 'N' -> 1.0;
-            case 'P' -> 1.25;
-            case 'W' -> 0.5;
-            default -> throw new IllegalArgumentException("Carácter no válido: " + input);
-        };
+    @Override
+    public int countTicketsByUserAndMovie(long userId, long movieId) {
+        return this.ticketRepository.countTicketsByUserAndMovie(userId, movieId);
     }
+
+    @Override
+    public List<Ticket> findTicketsByBookingIdAndAvailableIsTrue(String bookingId) {
+        return this.ticketRepository.findTicketsByBookingIdAndAvailableIsTrue(bookingId);
+    }
+
+
 }

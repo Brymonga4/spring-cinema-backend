@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.model.Booking;
 import org.example.model.Ticket;
+import org.example.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,5 @@ public interface BookingService {
 
     // UPDATE
     Booking update(Booking booking);
-
 
 }

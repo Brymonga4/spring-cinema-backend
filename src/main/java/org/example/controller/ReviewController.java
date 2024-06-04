@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -20,6 +21,7 @@ public class ReviewController {
     private final MovieService movieService;
     private final ReviewService reviewService;
     private final UserService userService;
+
 
     public ReviewController(MovieService movieService, ReviewService reviewService, UserService userService) {
         this.movieService = movieService;
@@ -50,26 +52,59 @@ public class ReviewController {
     }
 
     @GetMapping("/movie/{id}/reviews")
-    public ResponseEntity<List<Review>> findAllByMovieId(@PathVariable Long id){
+    public ResponseEntity<List<ReviewDTO>> findAllByMovieId(@PathVariable Long id){
 
         List <Review> reviews = this.reviewService.findAllByMovieId(id);
+
+        MovieDTO movieDTO = movieService.findById(id).
+                orElseThrow(() -> new RuntimeException("No se encontró la película "));
+
+        for(Review r: reviews){
+            r.setMovie(movieService.convertToEntity(movieDTO));
+        }
+
+        List<ReviewDTO> reviewDTOs = reviews.stream()
+                .map(Review::reviewToDTO)
+                .toList();
 
         if (reviews.isEmpty())
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(reviews);
+        return ResponseEntity.ok(reviewDTOs);
 
     }
 
-    @PostMapping("/movie/{id}/reviews")
-    public ResponseEntity<Review> create(@PathVariable Long id, @Valid @RequestBody ReviewDTO reviewDTO){
+    @GetMapping("/user/{id}/reviews")
+    public ResponseEntity<List<ReviewDTO>> findAllByUserId(@PathVariable Long id){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        List <Review> reviews = this.reviewService.findAllByUserId(id);
+
+        MovieDTO movieDTO = movieService.findById(id).
+                orElseThrow(() -> new RuntimeException("No se encontró la película "));
+
+        for(Review r: reviews){
+            r.setMovie(movieService.convertToEntity(movieDTO));
+        }
+
+        List<ReviewDTO> reviewDTOs = reviews.stream()
+                .map(Review::reviewToDTO)
+                .toList();
+
+        if (reviews.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(reviewDTOs);
+
+    }
+
+
+    @PostMapping("/movie/{id}/reviews")
+    public ResponseEntity<ReviewDTO> create(@PathVariable Long id, @Valid @RequestBody ReviewDTO reviewDTO){
+
 
         Review review = reviewService.convertToEntity(reviewDTO);
 
-        User user = userService.findByNickname(username)
+        User user = userService.findByNickname(reviewDTO.getUserNickname())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         review.setUser(user);
 
@@ -78,9 +113,12 @@ public class ReviewController {
         review.setMovie(movieService.convertToEntity(movieDTO));
 
 
-        Review savedReview= this.reviewService.save(review);
-        return ResponseEntity.ok(savedReview);
+        Review savedReview = this.reviewService.save(review);
+
+        return ResponseEntity.ok(review.reviewToDTO());
     }
+
+
 
 
 

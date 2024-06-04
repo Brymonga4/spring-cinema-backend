@@ -37,4 +37,8 @@ public interface TicketService {
     double calculateTickePrice(Ticket ticket);
 
     List<Ticket> convertToEntitiesNoSecure(TicketWithUserDTO ticketWithUserDTO);
+
+    int countTicketsByUserAndMovie(long userId, long movieId);
+
+    List<Ticket> findTicketsByBookingIdAndAvailableIsTrue(String bookingId);
 }

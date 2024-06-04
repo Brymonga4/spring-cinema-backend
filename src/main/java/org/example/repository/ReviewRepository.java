@@ -17,4 +17,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     void findAndLockById(Long id);
 
     List<Review> findAllByMovieId(Long id);
+
+    List<Review> findAllByUserId(Long id);
 }

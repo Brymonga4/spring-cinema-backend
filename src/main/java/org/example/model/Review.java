@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.dto.ReviewDTO;
 
 import java.time.LocalDateTime;
 
@@ -38,5 +39,15 @@ public class Review {
     @Column(nullable = false)
     private LocalDateTime review_date;
 
+
+    public ReviewDTO reviewToDTO(){
+        return ReviewDTO.builder()
+                .userNickname(user.getNickname())
+                .title(title)
+                .opinion(opinion)
+                .rating(rating)
+                .review_date(review_date)
+                .build();
+    }
 
 }

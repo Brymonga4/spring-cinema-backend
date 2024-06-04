@@ -65,7 +65,7 @@ public class ReviewServiceImpl implements ReviewService{
     @Override
     public ReviewDTO convertToDto(Review review) {
         return new ReviewDTO(
-            review.getUser().getId(),
+            review.getUser().getNickname(),
             review.getTitle(),
             review.getOpinion(),
             review.getRating(),
@@ -81,6 +81,11 @@ public class ReviewServiceImpl implements ReviewService{
                 reviewDTO.getOpinion(),
                 reviewDTO.getRating(),
                 reviewDTO.getReview_date());
+    }
+
+    @Override
+    public List<Review> findAllByUserId(Long id) {
+        return this.reviewRepository.findAllByUserId(id);
     }
 
 

@@ -210,52 +210,17 @@ public class TicketController {
         return ResponseEntity.ok(savedSTicket);
     }
 
-    @PostMapping("/sendEmailTest")
-    public ResponseEntity<String> sendEmailTest(@Valid @RequestBody String email){
-        try {
-            this.emailService.sendEmail("brymonga@gmail.com", "probando", email);
-        }catch (MessagingException e){
-            throw new RuntimeException("Algo fallo");
-        }
-        return ResponseEntity.ok("Correo envia satisfactoriamente");
+    @GetMapping("/user/{userId}/movie/{movieId}/tickets")
+    public ResponseEntity<Integer> findAllByUserId(@PathVariable Long userId,@PathVariable Long movieId ){
+
+        int ticketsBought = this.ticketService.countTicketsByUserAndMovie(userId, movieId);
+
+
+        if (ticketsBought <= 0)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(ticketsBought);
+
     }
 
-    @PostMapping("/sendEmailWithQR")
-    public ResponseEntity<String> sendEmailWithQR(@Valid @RequestBody String embailBody) {
-
-        try {
-            String identifier = "ABCDEFGHI"; // Usa tu lógica para generar el identificador
-            emailService.sendEmailWithQRCode("brymonga@gmail.com",
-                                            "Mensaje enviado desde springboot",
-                                                embailBody, identifier);
-        } catch (MessagingException | IOException | WriterException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
-        }
-
-        return ResponseEntity.ok("Todo va bien");
-    }
-
-
-    @PostMapping("/sendEmailWithPDF")
-    public ResponseEntity<String> sendEmailWithPDF(@Valid @RequestBody String embailBody) {
-
-        try {
-            String identifier = "ABCDEFGHI"; // Usa tu lógica para generar el identificador
-
-            byte[] pdfBytes = pdfService.generatePdfWithQrCodeAndDesign(identifier,embailBody);
-
-            emailService.sendEmailWithPdf("brymonga@gmail.com",
-                    "Mensaje enviado desde spring",
-                    "Estamos haciendo la petición desde postman",
-                        identifier, pdfBytes);
-        } catch (MessagingException | IOException | WriterException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).build();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return ResponseEntity.ok("Todo va bien");
-    }
 }

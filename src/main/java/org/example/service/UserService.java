@@ -1,8 +1,11 @@
 package org.example.service;
 
 
+import org.example.model.Ticket;
 import org.example.model.User;
 import org.example.repository.UserRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,5 +40,9 @@ public interface UserService {
 
 
     boolean comparePassword(String rawPass, String encodedPass);
+
+    List<Ticket> findAllTicketsBoughtByUserId(Long userId);
+
+    List<Ticket> findTickesOfAUser(Long userId);
 
 }

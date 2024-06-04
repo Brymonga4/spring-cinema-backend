@@ -28,4 +28,6 @@ public interface ReviewService {
 
     Review convertToEntity(ReviewDTO reviewDTO);
 
+    List<Review> findAllByUserId(Long id);
+
 }

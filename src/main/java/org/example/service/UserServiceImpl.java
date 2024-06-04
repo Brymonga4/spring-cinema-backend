@@ -1,8 +1,10 @@
 package org.example.service;
 
 import jakarta.transaction.Transactional;
+import org.example.model.Booking;
+import org.example.model.Ticket;
 import org.example.model.User;
-import org.example.repository.UserRepository;
+import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,11 +20,22 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final BookingRepository bookingRepository;
+    private final SeatRepository seatRepository;
+    private final ScreeningRepository screeningRepository;
+    private final MovieRepository movieRepository;
+    private final CinemaRepository cinemaRepository;
+    private final ScreenRepository screenRepository;
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, BookingRepository bookingRepository, SeatRepository seatRepository, ScreeningRepository screeningRepository, MovieRepository movieRepository, CinemaRepository cinemaRepository, ScreenRepository screenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.bookingRepository = bookingRepository;
+        this.seatRepository = seatRepository;
+        this.screeningRepository = screeningRepository;
+        this.movieRepository = movieRepository;
+        this.cinemaRepository = cinemaRepository;
+        this.screenRepository = screenRepository;
     }
 
     @Override
@@ -58,6 +71,61 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<Ticket> findAllTicketsBoughtByUserId(Long userId) {
+        System.out.println(userId);
+
+        List <Ticket> tickets =  this.userRepository.findAllTicketsBoughtByUserId(userId);
+
+        for(Ticket t: tickets){
+            t.setBooking(this.bookingRepository.findById(t.getId())
+                    .orElseThrow(()->new RuntimeException("No existe esa reserva")));
+            t.setSeat(this.seatRepository.findById(t.getSeat().getIdSeat())
+                    .orElseThrow(()->new RuntimeException("No existe esa butaca")));
+
+            t.setScreening(this.screeningRepository.findById(t.getScreening().getId())
+                    .orElseThrow(()->new RuntimeException("No existe esa función")));
+            t.getScreening().setScreen(this.screenRepository.findById(t.getScreening().getScreen().getId())
+                    .orElseThrow(()->new RuntimeException("No existe esa sala")));
+            t.getScreening().getScreen().setCinema(this.cinemaRepository.findById(t.getScreening().getScreen().getCinema().getId())
+                    .orElseThrow(()->new RuntimeException("No existe ese cine")));
+            t.getScreening().setMovie(this.movieRepository.findById(t.getScreening().getMovie().getId())
+                    .orElseThrow(()->new RuntimeException("No existe esa pelicula")));
+
+            System.out.println(t);
+        }
+        return  tickets;
+
+    }
+
+    @Override
+    public List<Ticket> findTickesOfAUser(Long id) {
+
+
+        List <Ticket> tickets =  this.userRepository.findTickesOfAUser(id);
+
+        for(Ticket t: tickets){
+
+            System.out.println(t);
+            t.setBooking(this.bookingRepository.findByStrId(t.getBooking().getId())
+                    .orElseThrow(()->new RuntimeException("No existe esa reserva")));
+            t.setSeat(this.seatRepository.findById(t.getSeat().getIdSeat())
+                    .orElseThrow(()->new RuntimeException("No existe esa butaca")));
+
+            t.setScreening(this.screeningRepository.findById(t.getScreening().getId())
+                    .orElseThrow(()->new RuntimeException("No existe esa función")));
+            t.getScreening().setScreen(this.screenRepository.findById(t.getScreening().getScreen().getId())
+                    .orElseThrow(()->new RuntimeException("No existe esa sala")));
+            t.getScreening().getScreen().setCinema(this.cinemaRepository.findById(t.getScreening().getScreen().getCinema().getId())
+                    .orElseThrow(()->new RuntimeException("No existe ese cine")));
+            t.getScreening().setMovie(this.movieRepository.findById(t.getScreening().getMovie().getId())
+                    .orElseThrow(()->new RuntimeException("No existe esa pelicula")));
+
+            System.out.println(t);
+        }
+        return  tickets;
+    }
+
+    @Override
     public Optional<User> findByNickname(String username) {
         return this.userRepository.findByNickname(username);
     }
@@ -87,6 +155,8 @@ public class UserServiceImpl implements UserService {
     public void deleteAll() {
 
     }
+
+
 
 
     @Override
