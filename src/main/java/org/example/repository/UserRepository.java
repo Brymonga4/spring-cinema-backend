@@ -25,6 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByPassword(String password);
 
 
+
     Optional<User> findByNickname(String username);
 
     Optional<User> findByEmail(String email);
@@ -37,4 +38,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "JOIN Booking b ON t.booking.id = b.id "+
             "JOIN User u ON b.user.id = u.id WHERE u.id = :userId")
     List<Ticket> findTickesOfAUser(@Param("userId") Long userId);
+
+
+    @Query("SELECT u FROM User u WHERE u.nickname = :nickname AND u.recover_code = :recoverCode")
+    Optional<User> findByNicknameAndRecoverCode(@Param("nickname") String nickname, @Param("recoverCode") String recoverCode);
+
+    @Query("SELECT u FROM User u WHERE u.email = :email AND u.recover_code = :recoverCode")
+    Optional<User> findByEmailAndRecoverCode(@Param("email") String email, @Param("recoverCode") String recoverCode);
 }

@@ -70,6 +70,7 @@ public class UserServiceImpl implements UserService {
         return this.passwordEncoder.matches(rawPass,encodedPass );
     }
 
+
     @Override
     public List<Ticket> findAllTicketsBoughtByUserId(Long userId) {
         System.out.println(userId);
@@ -126,6 +127,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> findByNicknameAndRecoverCode(String nickname, String recoverCode) {
+        return this.userRepository.findByNicknameAndRecoverCode(nickname, recoverCode);
+    }
+
+    @Override
+    public Optional<User> findByEmailAndRecoverCode(String email, String recoverCode) {
+        return this.userRepository.findByEmailAndRecoverCode(email, recoverCode);
+    }
+
+    @Override
     public Optional<User> findByNickname(String username) {
         return this.userRepository.findByNickname(username);
     }
@@ -163,7 +174,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User update(User user) {
         this.userRepository.findAndLockById(user.getId());
-        return this.userRepository.save(user);
+        return this.save(user);
     }
 
 }

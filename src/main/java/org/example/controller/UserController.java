@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import net.coobird.thumbnailator.Thumbnails;
 import org.example.dto.*;
@@ -7,6 +8,9 @@ import org.example.exception.Exceptions;
 import org.example.model.*;
 import org.example.service.TicketService;
 import org.example.service.UserService;
+import org.example.service.email.EmailService;
+import org.example.service.email.PdfService;
+import org.example.util.IdGenerator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,10 +34,13 @@ public class UserController {
 
     private final UserService userService;
     private final TicketService ticketService;
+
+    private final EmailService emailService;
     private static final String UPLOAD_DIR = "src/main/resources/static/uploads/";
-    public UserController(UserService userService, TicketService ticketService){
+    public UserController(UserService userService, TicketService ticketService, EmailService emailService){
         this.userService = userService;
         this.ticketService = ticketService;
+        this.emailService = emailService;
     }
 
 
@@ -95,7 +102,7 @@ public class UserController {
     }
 
 
-    @PostMapping(value = "users/{i}/uploadAvatar", consumes = "multipart/form-data")
+    @PostMapping(value = "users/{id}/uploadAvatar", consumes = "multipart/form-data")
     public ResponseEntity<UserResponseDTO> uploadAvatar(@PathVariable Long id,
                                            @RequestPart("file") MultipartFile file){
         User user = this.userService.findById(id)
@@ -117,6 +124,51 @@ public class UserController {
 
         return ResponseEntity.ok(updatedUser.toUserResponseDTO());
     }
+
+    @PutMapping("/recoverPassword")
+    public ResponseEntity<UserResponseDTO> recoverPassword(@Valid @RequestBody UserRecoverCodeDTO userRecoverCodeDTO){
+
+        User userToRecover = this.userService.findByNicknameAndRecoverCode(userRecoverCodeDTO.getIdentifier(), userRecoverCodeDTO.getRecover_code())
+                .or(() -> this.userService.findByEmailAndRecoverCode(userRecoverCodeDTO.getIdentifier(), userRecoverCodeDTO.getRecover_code()))
+                .orElseThrow(() -> new RuntimeException("Codigo incorrecto para usuario " + userRecoverCodeDTO.getIdentifier()));
+
+        //Actualizamos con la nueva contraseña
+        System.out.println(userRecoverCodeDTO.getNewPassword());
+        userToRecover.setPassword(userRecoverCodeDTO.getNewPassword());
+
+        User updatedUser = this.userService.update(userToRecover);
+        System.out.println(updatedUser.getPassword());
+
+        return ResponseEntity.ok(updatedUser.toUserResponseDTO());
+    }
+
+
+    @PostMapping("/generateRecoverCode")
+    public ResponseEntity<Void> recoverPassword(@Valid @RequestBody String userIdentifier){
+
+        User userToRecover = this.userService.findByNickname(userIdentifier)
+                .or(() -> this.userService.findByEmail(userIdentifier))
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con " + userIdentifier));
+
+        String recoverCode = IdGenerator.randomNumericString(6);
+
+        userToRecover.setRecover_code(recoverCode);
+        this.userService.save(userToRecover);
+
+        try {
+            this.emailService.sendEmail(userToRecover.getEmail(),
+                    "Código de recuperación de su cuenta",
+                    "Este es su código de recuperación : "
+                            + recoverCode);
+
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
+
     @PostMapping("/login")
     public ResponseEntity<UserResponseDTO> loginNoSecurity(@Valid @RequestBody UserDTO userDTO){
 
@@ -142,7 +194,6 @@ public class UserController {
             user = this.userService.findByNickname(userDTO.getIdentifier())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado con "+ userDTO.getIdentifier()));
         }else{
-
             if(this.userService.existsByEmail(userDTO.getIdentifier())){
                 user = this.userService.findByEmail(userDTO.getIdentifier())
                         .orElseThrow(() -> new RuntimeException("Usuario no encontrado con "+ userDTO.getIdentifier()));

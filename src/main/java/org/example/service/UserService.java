@@ -41,8 +41,12 @@ public interface UserService {
 
     boolean comparePassword(String rawPass, String encodedPass);
 
+
     List<Ticket> findAllTicketsBoughtByUserId(Long userId);
 
     List<Ticket> findTickesOfAUser(Long userId);
+
+    Optional<User> findByNicknameAndRecoverCode(String nickname, String recoverCode);
+    Optional<User> findByEmailAndRecoverCode(String email, String recoverCode);
 
 }
