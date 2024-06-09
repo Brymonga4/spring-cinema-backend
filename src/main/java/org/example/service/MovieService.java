@@ -32,5 +32,5 @@ public interface MovieService {
     MovieDTO uptadeMovieAndCover(Movie movie, MultipartFile file);
 
     Movie handleFileUpload(Movie movie, MultipartFile file);
-
+    Movie handleMultipleFileUpload(Movie movie, MultipartFile coverFile, MultipartFile releaseFile);
 }

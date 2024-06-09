@@ -68,6 +68,19 @@ public class MovieController {
         return ResponseEntity.ok(movieSaved);
     }
 
+    @PostMapping(value = "/uploadMovieAndImages", consumes = "multipart/form-data")
+    public ResponseEntity<MovieDTO> createMovieAndUploadCoverAndReleasePhoto(@Valid @RequestPart("movie") Movie movie,
+                                           @RequestPart("coverFile") MultipartFile coverFile,
+                                           @RequestPart("releaseFile")MultipartFile releaseFile) {
+        if (movie.getId() != null)
+            return ResponseEntity.badRequest().build();
+
+        Movie movieTosave = this.service.handleMultipleFileUpload(movie,coverFile,releaseFile);
+        MovieDTO movieSaved = this.service.save(movieTosave);
+
+        return ResponseEntity.ok(movieSaved);
+    }
+
     @PutMapping(value = "/movies/{id}", consumes = "multipart/form-data")
     public ResponseEntity<MovieDTO> update(@PathVariable Long id,
                                            @Valid @RequestPart("movie") Movie movie,

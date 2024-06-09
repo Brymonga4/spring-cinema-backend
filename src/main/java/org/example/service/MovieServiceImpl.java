@@ -151,6 +151,51 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    public Movie handleMultipleFileUpload(Movie movie, MultipartFile coverFile, MultipartFile releaseFile) {
+        Path uploadPath = Paths.get(uploadConfig.getUploadDir());
+
+        try {
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            if (coverFile.getOriginalFilename() == null || coverFile.getOriginalFilename().isEmpty()) {
+                if (releaseFile.getOriginalFilename() == null || releaseFile.getOriginalFilename().isEmpty())
+                    throw new Exceptions.EmptyFileNameTitleException("");
+            }
+
+
+            String coverFileName = sanitizeTitle(movie.getTitle()) + getFileExtension(coverFile.getOriginalFilename());
+            String releaseFileName = "release-"+coverFileName;
+
+            Path coverFileNamePath = uploadPath.resolve(coverFileName);
+            Path releaseFileNamePath = uploadPath.resolve(releaseFileName);
+
+            if (Files.exists(coverFileNamePath)) {
+                Files.delete(coverFileNamePath);
+            }
+            if (Files.exists(releaseFileNamePath)) {
+                Files.delete(releaseFileNamePath);
+            }
+
+            Thumbnails.of(coverFile.getInputStream())
+                    .size(386, 546)
+                    .toFile(coverFileNamePath.toFile());
+
+
+            Thumbnails.of(releaseFile.getInputStream())
+                    .size(1280, 720)
+                    .toFile(releaseFileNamePath.toFile());
+
+            movie.setImage(coverFileName);
+
+            return movie;
+        } catch (IOException e) {
+            throw new Exceptions.FileErrorException(e.getMessage());
+        }
+    }
+
+    @Override
     @Transactional
     public MovieDTO uptadeMovieAndCover(Movie movie, MultipartFile file){
 
