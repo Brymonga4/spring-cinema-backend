@@ -1,17 +1,18 @@
 package org.example.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.example.dto.ReviewDTO;
 
 import java.time.LocalDateTime;
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "reviews")
 public class Review {
     @Id
@@ -42,6 +43,8 @@ public class Review {
 
     public ReviewDTO reviewToDTO(){
         return ReviewDTO.builder()
+                .id(id)
+                .movieTitle(movie.getTitle())
                 .userNickname(user.getNickname())
                 .title(title)
                 .opinion(opinion)

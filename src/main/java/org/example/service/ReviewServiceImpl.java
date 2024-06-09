@@ -1,8 +1,11 @@
 package org.example.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.example.dto.MovieDTO;
 import org.example.dto.ReviewDTO;
 import org.example.dto.TicketDTO;
+import org.example.exception.Exceptions;
+import org.example.mapper.ReviewMapper;
 import org.example.model.Movie;
 import org.example.model.Review;
 import org.example.model.User;
@@ -37,13 +40,39 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     @Override
-    public List<Review> findAllByMovieId(Long id) {
-        return this.reviewRepository.findAllByMovieId(id);
+    public List<ReviewDTO> findAllByMovieId(Long id) {
+
+        List <Review> reviews = this.reviewRepository.findAllByMovieId(id);
+
+        Movie movie = this.movieRepository.findById(id).
+                orElseThrow(() -> new Exceptions.MovieNotFoundException(id.toString()));
+
+        for(Review r: reviews){
+            r.setMovie(movie);
+        }
+
+        List<ReviewDTO> reviewDTOs = reviews.stream()
+                .map(ReviewMapper::toDTO)
+                .toList();
+
+        return reviewDTOs;
+
     }
 
     @Override
-    public Review save(Review review) {
-       return this.reviewRepository.save(review);
+    public ReviewDTO save(Review review) {
+
+        User user = this.userRepository.findByNickname(review.getUser().getNickname())
+                .orElseThrow(() -> new Exceptions.UserNotFoundException(review.getUser().getNickname()));
+        review.setUser(user);
+
+        Movie movie =this.movieRepository.findById(review.getMovie().getId()).
+                orElseThrow(() -> new Exceptions.MovieNotFoundException(review.getMovie().getId().toString()));
+
+        review.setMovie(movie);
+        Review reviewSaved = this.reviewRepository.save(review);
+
+        return ReviewMapper.toDTO(reviewSaved);
     }
 
     @Override
@@ -63,29 +92,24 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     @Override
-    public ReviewDTO convertToDto(Review review) {
-        return new ReviewDTO(
-            review.getUser().getNickname(),
-            review.getTitle(),
-            review.getOpinion(),
-            review.getRating(),
-            review.getReview_date()
-        );
-    }
+    public List<ReviewDTO> findAllByUserId(Long id) {
 
-    @Override
-    public Review convertToEntity(ReviewDTO reviewDTO) {
-        return new Review(null, null,
-                null,
-                reviewDTO.getTitle(),
-                reviewDTO.getOpinion(),
-                reviewDTO.getRating(),
-                reviewDTO.getReview_date());
-    }
+        List <Review> reviews = this.reviewRepository.findAllByUserId(id);
 
-    @Override
-    public List<Review> findAllByUserId(Long id) {
-        return this.reviewRepository.findAllByUserId(id);
+        Movie movie = this.movieRepository.findById(id).
+                orElseThrow(() -> new Exceptions.MovieNotFoundException(id.toString()));
+
+        for(Review r: reviews){
+            r.setMovie(movie);
+        }
+
+        List<ReviewDTO> reviewDTOs = reviews.stream()
+                .map(ReviewMapper::toDTO)
+                .toList();
+
+
+        return reviewDTOs;
+
     }
 
 

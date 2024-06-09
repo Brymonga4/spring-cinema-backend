@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import net.coobird.thumbnailator.Thumbnails;
 import org.example.dto.*;
 import org.example.exception.Exceptions;
+import org.example.mapper.UserMapper;
 import org.example.model.*;
 import org.example.service.TicketService;
 import org.example.service.UserService;
@@ -60,13 +61,7 @@ public class UserController {
     @GetMapping("/users/{id}/tickets")
     public ResponseEntity<List<TicketReceiptDTO>> findAllTicketsByUserId(@PathVariable Long id){
 
-        List <Ticket> tickets = this.userService.findTickesOfAUser(id);
-
-        List <TicketReceiptDTO> ticketsReceiptDTO = new ArrayList<>();
-
-        for(Ticket t: tickets){
-           ticketsReceiptDTO.add(t.ticketReceiptDTO());
-        }
+        List <TicketReceiptDTO> ticketsReceiptDTO  = this.userService.findTickesOfAUser(id);
 
         if (ticketsReceiptDTO.isEmpty())
             return ResponseEntity.notFound().build();
@@ -77,26 +72,15 @@ public class UserController {
     @GetMapping("/users/{id}")
     public ResponseEntity<UserResponseDTO> findById(@PathVariable Long id){
 
-        User user = this.userService.findById(id).orElseThrow(()-> new RuntimeException("No existe un usario con el id "+id));
-
-        if (user==null)
-            return ResponseEntity.notFound().build();
+        User user = this.userService.findById(id);
 
         return ResponseEntity.ok(user.toUserResponseDTO());
 
     }
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody User user){
-        User savedUser;
-        if(!this.userService.existsByEmail(user.getEmail())) {
-            if (!this.userService.existsByNickname(user.getNickname())) {
-                 savedUser = this.userService.save(user);
-            }else {
-                throw new Exceptions.NicknameAlreadyUsedException("El nickname ya está siendo usado por otro usuario");
-            }
-        }else {
-            throw new Exceptions.EmailAlreadyUsedException("El email ya está siendo usado por otro usuario");
-        }
+
+        User savedUser = this.userService.save(user);
 
         return ResponseEntity.ok(savedUser.toUserResponseDTO());
     }
@@ -105,65 +89,36 @@ public class UserController {
     @PostMapping(value = "users/{id}/uploadAvatar", consumes = "multipart/form-data")
     public ResponseEntity<UserResponseDTO> uploadAvatar(@PathVariable Long id,
                                            @RequestPart("file") MultipartFile file){
-        User user = this.userService.findById(id)
-                .orElseThrow(()->new RuntimeException("No se encontró el usuario"));
 
-        handleFileUploadUser(user.getNickname(),file);
+        UserResponseDTO userResponseDTO = this.userService.uploadAvatarOfUser(id, file);
 
-        return ResponseEntity.ok(user.toUserResponseDTO());
+        return ResponseEntity.ok(userResponseDTO);
     }
 
     @PutMapping("/users/{id}")
     public ResponseEntity<UserResponseDTO> update(@PathVariable Long id, @Valid @RequestBody User user){
 
-        if(this.userService.findById(id).isEmpty())
+        if(this.userService.findById(id)==null)
             return ResponseEntity.badRequest().build();
+
         user.setId(id);
         //Hacer DTO sin contraseña
         User updatedUser = this.userService.update(user);
 
-        return ResponseEntity.ok(updatedUser.toUserResponseDTO());
+        return ResponseEntity.ok(UserMapper.toUserResponseDTO(updatedUser));
     }
 
     @PutMapping("/recoverPassword")
     public ResponseEntity<UserResponseDTO> recoverPassword(@Valid @RequestBody UserRecoverCodeDTO userRecoverCodeDTO){
 
-        User userToRecover = this.userService.findByNicknameAndRecoverCode(userRecoverCodeDTO.getIdentifier(), userRecoverCodeDTO.getRecover_code())
-                .or(() -> this.userService.findByEmailAndRecoverCode(userRecoverCodeDTO.getIdentifier(), userRecoverCodeDTO.getRecover_code()))
-                .orElseThrow(() -> new RuntimeException("Codigo incorrecto para usuario " + userRecoverCodeDTO.getIdentifier()));
+        UserResponseDTO userRecovered = this.userService.recoverPassword(userRecoverCodeDTO);
 
-        //Actualizamos con la nueva contraseña
-        System.out.println(userRecoverCodeDTO.getNewPassword());
-        userToRecover.setPassword(userRecoverCodeDTO.getNewPassword());
-
-        User updatedUser = this.userService.update(userToRecover);
-        System.out.println(updatedUser.getPassword());
-
-        return ResponseEntity.ok(updatedUser.toUserResponseDTO());
+        return ResponseEntity.ok(userRecovered);
     }
 
 
     @PostMapping("/generateRecoverCode")
     public ResponseEntity<Void> recoverPassword(@Valid @RequestBody String userIdentifier){
-
-        User userToRecover = this.userService.findByNickname(userIdentifier)
-                .or(() -> this.userService.findByEmail(userIdentifier))
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con " + userIdentifier));
-
-        String recoverCode = IdGenerator.randomNumericString(6);
-
-        userToRecover.setRecover_code(recoverCode);
-        this.userService.save(userToRecover);
-
-        try {
-            this.emailService.sendEmail(userToRecover.getEmail(),
-                    "Código de recuperación de su cuenta",
-                    "Este es su código de recuperación : "
-                            + recoverCode);
-
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        }
 
         return ResponseEntity.noContent().build();
     }
@@ -172,17 +127,12 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserResponseDTO> loginNoSecurity(@Valid @RequestBody UserDTO userDTO){
 
+        UserResponseDTO userResponseDTO = this.userService.loginNoSecurity(userDTO);
 
-        User user = this.userService.findByNickname(userDTO.getIdentifier())
-                .orElseGet(() -> this.userService.findByEmail(userDTO.getIdentifier())
-                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado con " + userDTO.getIdentifier())));
-
-
-        if(!this.userService.comparePassword(userDTO.getPassword(), user.getPassword()))
+        if(userResponseDTO == null)
             return ResponseEntity.badRequest().build();
 
-
-        return ResponseEntity.ok(user.toUserResponseDTO());
+        return ResponseEntity.ok(userResponseDTO);
     }
 
     @PostMapping("/login/user")
@@ -213,41 +163,5 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    private void handleFileUploadUser(String nickname, MultipartFile file) {
-
-        try {
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                try {
-                    Files.createDirectories(uploadPath);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException("Fallo en el directorio");
-                }
-            }
-
-            if (Objects.equals(file.getOriginalFilename(), "")) {
-                throw new RuntimeException("Título de archivo vacío");
-            }
-
-            String sanitizedTitle = sanitizeTitle(nickname);
-            String fileExtension = getFileExtension(file.getOriginalFilename());
-            String fileName = "avatar_"+sanitizedTitle + fileExtension;
-
-            Path filePath = uploadPath.resolve(fileName);
-
-            if (Files.exists(filePath)) {
-                Files.delete(filePath);
-            }
-
-            Thumbnails.of(file.getInputStream())
-                    .size(120, 120)
-                    .toFile(filePath.toFile());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Fallo al subir el archivo");
-        }
-    }
 
 }

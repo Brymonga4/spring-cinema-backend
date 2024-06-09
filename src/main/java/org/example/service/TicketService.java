@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.FullTicketWithDetailsDTO;
 import org.example.dto.MovieDTO;
 import org.example.dto.TicketDTO;
 import org.example.dto.TicketWithUserDTO;
@@ -20,25 +21,20 @@ public interface TicketService {
 
     List<Ticket> saveAll(List<Ticket> tickets);
 
-    // DELETE
     void deleteById(Long id);
     void deleteAll();
 
-    // UPDATE
     Ticket update(Ticket ticket);
 
-
-    TicketDTO convertToDto(Ticket ticket);
-
-    Ticket convertToEntity(TicketDTO ticketDTO);
-
-    Ticket convertToEntityNoSecure(TicketWithUserDTO ticketWithUserDTO);
-
-    double calculateTickePrice(Ticket ticket);
-
     List<Ticket> convertToEntitiesNoSecure(TicketWithUserDTO ticketWithUserDTO);
+
+    List<FullTicketWithDetailsDTO> generateBookingAndSaveTickets(List<Ticket> tickets, User user);
 
     int countTicketsByUserAndMovie(long userId, long movieId);
 
     List<Ticket> findTicketsByBookingIdAndAvailableIsTrue(String bookingId);
+
+    List<FullTicketWithDetailsDTO> buyTicketNoSecurity(TicketWithUserDTO ticketWithUserDTO);
+
+    void generatePDFandSendEmailToUserFromFullTickets(List<FullTicketWithDetailsDTO> fullTickets, String emailTo);
 }

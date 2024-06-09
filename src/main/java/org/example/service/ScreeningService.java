@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dto.MovieDTO;
+import org.example.dto.ScreenAndSeatsDTO;
 import org.example.dto.ScreeningDayAndHourDTO;
 import org.example.model.Movie;
 import org.example.model.Screening;
@@ -13,6 +14,7 @@ import java.util.Optional;
 public interface ScreeningService {
 
     List<Screening> findAll();
+
     Optional<Screening> findById(Long id);
     int countFromNowToNext7Days(Long id);
     List<Screening> findAllByScreenIdAndToday(Long screenId);

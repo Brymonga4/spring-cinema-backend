@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 @Data
 public class ReviewDTO {
+    private Long id;
+    private String movieTitle;
     private String userNickname;
     private String title;
     private String opinion;

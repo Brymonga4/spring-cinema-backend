@@ -18,4 +18,6 @@ public interface CinemaService {
 
     // UPDATE
     Cinema update(Cinema cinema);
+
+    Optional<Cinema> findCinemaByName(String name);
 }

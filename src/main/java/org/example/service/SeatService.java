@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dto.MovieDTO;
 import org.example.dto.SeatDTO;
+import org.example.dto.SeatTypeDTO;
 import org.example.model.Movie;
 import org.example.model.Seat;
 import org.springframework.data.repository.query.Param;
@@ -21,6 +22,8 @@ public interface SeatService {
 
     List<Seat> saveAll(List<Seat> seats);
 
+    List<Seat> updateSeatsDTO(List<SeatTypeDTO> seatsTypeDTO);
+
     // DELETE
     void deleteById(Long id);
     void deleteAll();
@@ -33,5 +36,8 @@ public interface SeatService {
     List<Seat> findUnavailableSeatsByScreeningId(@Param("screeningId") Long screeningId);
 
     List<SeatDTO> findAllSeatsOfScreeningId(Long screeningId);
+
+
+
 
 }

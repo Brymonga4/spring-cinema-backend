@@ -15,17 +15,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class Screen_rowsController {
-    private Screen_rowsService screen_rowService;
-    private ScreenService screenService;
+    private final Screen_rowsService screen_rowService;
 
-    public Screen_rowsController(Screen_rowsService screen_rowService, ScreenService screenService){
+    public Screen_rowsController(Screen_rowsService screen_rowService){
 
         this.screen_rowService = screen_rowService;
-        this.screenService = screenService;
+
     }
-  /*
-    GET http://localhost:8080/api/screen_rows
-     */
 
     @GetMapping("/screen_rows")
     public ResponseEntity<List<ScreenRows>> findAll(){
@@ -39,9 +35,6 @@ public class Screen_rowsController {
 
     }
 
-    /*
-    GET http://localhost:8080/api/screen_rows/1
-     */
     @GetMapping("/screen_rows/{id}")
     public ResponseEntity<ScreenRows> findById(@PathVariable Long id){
 
@@ -65,12 +58,8 @@ public class Screen_rowsController {
     @PostMapping("/screen_rows")
     public ResponseEntity<ScreenRows> create(@Valid @RequestBody ScreenRows screenRows){
 
-        if(screenRows.getScreen().getId()!= null){
-            Screen screen = screenService.findById(screenRows.getScreen().getId())
-                    .orElseThrow(() -> new RuntimeException("No se encontró la sala"));
-            screenRows.setScreen(screen);
-        }
-
+        if(screenRows.getId() !=null)
+            return ResponseEntity.badRequest().build();
 
         ScreenRows savedScreenRows = this.screen_rowService.save(screenRows);
 
@@ -80,29 +69,21 @@ public class Screen_rowsController {
     @PostMapping("/screenRows")
     public ResponseEntity<ScreenWithSeatsDTO> createSeatsOfScreenRow(@Valid @RequestBody ScreenRows screenRows){
 
-        if(screenRows.getScreen().getId()!= null){
-            Screen screen = screenService.findById(screenRows.getScreen().getId())
-                    .orElseThrow(() -> new RuntimeException("No se encontró la sala"));
-            screenRows.setScreen(screen);
-        }
+        if(screenRows.getId() !=null)
+            return ResponseEntity.badRequest().build();
 
-        ScreenRows savedScreenRow = this.screen_rowService.save(screenRows);
+        ScreenRows savedScreenRows = this.screen_rowService.save(screenRows);
 
-
-        return ResponseEntity.ok(this.screen_rowService.createSeatsOfScreenRow(savedScreenRow));
+        return ResponseEntity.ok(this.screen_rowService.createSeatsOfScreenRow(savedScreenRows));
     }
 
 
-
-    /*
-    PUT http://localhost:8080/api/movies
-     */
     @PutMapping("/screen_rows/{id}")
     public ResponseEntity<ScreenRows> update(@PathVariable Long id, @Valid @RequestBody ScreenRows screenRows){
 
-        System.out.println(this.screen_rowService.findById(id).isEmpty());
         if(this.screen_rowService.findById(id).isEmpty())
             return ResponseEntity.badRequest().build();
+
         screenRows.setId(id);
         ScreenRows updatedScreen_rows = this.screen_rowService.update(screenRows);
 

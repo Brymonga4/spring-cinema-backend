@@ -9,14 +9,16 @@ import java.util.Optional;
 @Service
 public class CinemaServiceImpl implements  CinemaService{
 
-    private CinemaRepository repository;
+    private final CinemaRepository repository;
 
     public CinemaServiceImpl(CinemaRepository repository){
         this.repository = repository;
     }
     @Override
     public List<Cinema> findAll() {
-       return this.repository.findAll();
+
+        return this.repository.findAll();
+
     }
 
     @Override
@@ -37,5 +39,10 @@ public class CinemaServiceImpl implements  CinemaService{
     @Override
     public Cinema update(Cinema cinema) {
         return this.repository.save(cinema);
+    }
+
+    @Override
+    public Optional<Cinema> findCinemaByName(String name) {
+        return this.repository.findCinemaByName(name);
     }
 }

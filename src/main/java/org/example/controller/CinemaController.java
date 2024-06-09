@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import jakarta.validation.Valid;
+import org.example.dto.CinemaDTO;
+import org.example.mapper.CinemaMapper;
 import org.example.model.Cinema;
 import org.example.model.Seat;
 import org.example.service.CinemaService;
@@ -8,68 +10,57 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
 public class CinemaController {
 
-    private CinemaService service;
+    private final CinemaService service;
 
     public CinemaController(CinemaService service){
         this.service = service;
     }
 
 
-    /*
-    GET http://localhost:8080/api/cinemas
-     */
-
     @GetMapping("/cinemas")
-    public ResponseEntity<List<Cinema>> findAll(){
+    public ResponseEntity<List<CinemaDTO>> findAll(){
 
-        List <Cinema> cinemas = this.service.findAll();
+        List<CinemaDTO> cinemaDTOs = this.service.findAll().stream()
+                .map(CinemaMapper::toDTO)
+                .toList();
 
-        if (cinemas.isEmpty())
+        if (cinemaDTOs.isEmpty())
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(cinemas);
+        return ResponseEntity.ok(cinemaDTOs);
 
     }
 
-    /*
-    GET http://localhost:8080/api/seats/1
-     */
     @GetMapping("/cinemas/{id}")
-    public ResponseEntity<Cinema> findById(@PathVariable Long id){
+    public ResponseEntity<CinemaDTO> findById(@PathVariable Long id){
 
         return this.service.findById(id)
-                .map(ResponseEntity::ok)
+                .map(cinema -> ResponseEntity.ok(CinemaMapper.toDTO(cinema)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
 
     }
 
-      /*
-    POST http://localhost:8080/api/movies
-     */
 
     @PostMapping("/cinemas")
-    public ResponseEntity<Cinema> create(@Valid @RequestBody Cinema cinema){
+    public ResponseEntity<CinemaDTO> create(@Valid @RequestBody Cinema cinema){
 
         if(cinema.getId() != null)
             return ResponseEntity.badRequest().build();
 
         Cinema savedCinema = this.service.save(cinema);
 
-        return ResponseEntity.ok(savedCinema);
+        return ResponseEntity.ok(CinemaMapper.toDTO(savedCinema));
     }
 
-    /*
-    PUT http://localhost:8080/api/movies
-     */
     @PutMapping("/cinemas/{id}")
     public ResponseEntity<Cinema> update(@PathVariable Long id, @Valid @RequestBody Cinema cinema){
 
-        System.out.println(this.service.findById(id).isEmpty());
         if(this.service.findById(id).isEmpty())
             return ResponseEntity.badRequest().build();
         cinema.setId(id);
@@ -78,8 +69,8 @@ public class CinemaController {
         return ResponseEntity.ok(updatedCinema);
     }
 
-    @DeleteMapping ("/cinemas/{identifier}")
-    public ResponseEntity<Seat> deleteById(@PathVariable("identifier") Long id){
+    @DeleteMapping ("/cinemas/{id}")
+    public ResponseEntity<Seat> deleteById(@PathVariable Long id){
 
         this.service.deleteById(id);
         return ResponseEntity.noContent().build();

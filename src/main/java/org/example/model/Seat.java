@@ -3,6 +3,7 @@ package org.example.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.dto.SeatDTO;
@@ -10,6 +11,7 @@ import org.example.dto.UserDTO;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

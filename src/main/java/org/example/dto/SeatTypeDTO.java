@@ -1,7 +1,6 @@
 package org.example.dto;
 
 import lombok.*;
-import org.example.model.Seat;
 
 @Getter
 @Setter
@@ -9,11 +8,7 @@ import org.example.model.Seat;
 @AllArgsConstructor
 @Builder
 @Data
-public class SeatDTO {
+public class SeatTypeDTO {
     private Long id;
-    private int row_number;
-    private int seat_number;
     private char seat_type;
-    private boolean available;
-
 }

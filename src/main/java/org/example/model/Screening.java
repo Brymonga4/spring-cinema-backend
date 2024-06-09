@@ -9,7 +9,6 @@ import org.example.dto.ScreeningDTO;
 import org.example.dto.ScreeningDayAndHourDTO;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -60,7 +59,7 @@ public class Screening {
                         .screeningDay(this.getDayFromStartTime())
                         .build())
                 .audio(audio)
-                .screenPrice(price)
+                .screeningPrice(price)
                 .build();
     }
 

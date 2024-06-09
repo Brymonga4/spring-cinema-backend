@@ -4,8 +4,12 @@ import jakarta.transaction.Transactional;
 import org.example.dto.RowsWithSeatsDTO;
 import org.example.dto.ScreenWithSeatsDTO;
 import org.example.dto.SeatDTO;
+import org.example.exception.Exceptions;
+import org.example.mapper.SeatMapper;
+import org.example.model.Screen;
 import org.example.model.ScreenRows;
 import org.example.model.Seat;
+import org.example.repository.ScreenRepository;
 import org.example.repository.Screen_rowsRepository;
 import org.example.repository.SeatRepository;
 import org.springframework.stereotype.Service;
@@ -17,12 +21,13 @@ import java.util.Optional;
 @Service
 public class Screen_rowsServiceImpl implements Screen_rowsService{
     private final Screen_rowsRepository repository;
-
     private final SeatRepository seatRepository;
+    private final ScreenRepository screenRepository;
 
-    public Screen_rowsServiceImpl (Screen_rowsRepository repository, SeatRepository seatRepository){
+    public Screen_rowsServiceImpl (Screen_rowsRepository repository, SeatRepository seatRepository, ScreenRepository screenRepository){
         this.repository = repository;
         this.seatRepository = seatRepository;
+        this.screenRepository = screenRepository;
     }
     @Override
     public List<ScreenRows> findAll() {
@@ -37,9 +42,14 @@ public class Screen_rowsServiceImpl implements Screen_rowsService{
 
 
     @Override
-    @Transactional
     public ScreenRows save(ScreenRows screenRows) {
+
+        Screen screen = screenRepository.findById(screenRows.getScreen().getId())
+                .orElseThrow(() -> new Exceptions.ScreenNotFoundException(screenRows.getScreen().getId().toString()));
+        screenRows.setScreen(screen);
+
         return this.repository.save(screenRows);
+
     }
 
     @Override
@@ -62,6 +72,7 @@ public class Screen_rowsServiceImpl implements Screen_rowsService{
     }
 
     @Override
+    @Transactional
     public RowsWithSeatsDTO createSeatsOfRow(ScreenRows sr){
 
         List<SeatDTO> newSeatsInScreen = new ArrayList<>();
@@ -73,11 +84,15 @@ public class Screen_rowsServiceImpl implements Screen_rowsService{
             System.out.println(seat);
             Seat seatCreated = this.seatRepository.save(seat);
             System.out.println(seatCreated);
-            newSeatsInScreen.add(seatCreated.toDTOWithRowNumber(sr.getRowNumber()));
+            newSeatsInScreen.add(SeatMapper.toDTO(seatCreated));
+
         }
 
-        return new RowsWithSeatsDTO(sr.getId(),sr.getRowNumber(), newSeatsInScreen);
-
+        return RowsWithSeatsDTO.builder()
+                .row_id(sr.getId())
+                .row_num(sr.getRowNumber())
+                .seats(newSeatsInScreen)
+                .build();
     }
 
     @Override
@@ -96,6 +111,7 @@ public class Screen_rowsServiceImpl implements Screen_rowsService{
 
 
     @Override
+    @Transactional
     public ScreenRows update(ScreenRows screenRows) {
         this.repository.findAndLockById(screenRows.getId());
         return this.save(screenRows);

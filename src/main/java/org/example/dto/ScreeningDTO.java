@@ -23,7 +23,7 @@ public class ScreeningDTO {
     private ScreeningDayAndHourDTO screeningDayAndHourDTO;
 
     private String audio;
-    private double screenPrice;
+    private double screeningPrice;
 
     public Screening toEntity(){
         return Screening.builder()
@@ -38,7 +38,7 @@ public class ScreeningDTO {
 
                 .start_time(screeningDayAndHourDTO.converToLocalDateTime())
                 .audio(audio)
-                .price(screenPrice)
+                .price(screeningPrice)
                 .build();
     }
 

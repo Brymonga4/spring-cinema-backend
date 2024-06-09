@@ -2,6 +2,9 @@ package org.example.service;
 
 import jakarta.transaction.Transactional;
 import org.example.dto.SeatDTO;
+import org.example.dto.SeatTypeDTO;
+import org.example.exception.Exceptions;
+import org.example.mapper.SeatMapper;
 import org.example.model.ScreenRows;
 import org.example.model.Seat;
 import org.example.repository.ScreenRepository;
@@ -13,12 +16,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.example.exception.Messages.MSG_SEATS_LIMIT;
+import static org.example.exception.Messages.MSG_SEAT_ALREADY_EXISTS;
+
 @Service
 public class SeatServiceImpl implements SeatService {
 
     private final SeatRepository repository;
-
     private final Screen_rowsRepository screenRowsRepository;
+
 
     public SeatServiceImpl (SeatRepository repository, Screen_rowsRepository screenRowsRepository){
         this.repository = repository;
@@ -39,16 +45,25 @@ public class SeatServiceImpl implements SeatService {
     @Transactional
     public Seat save(Seat seat) {
 
-        boolean exists = this.repository.existsByScreenRowsIdAndSeatNumber(seat.getScreenRows().getId(), seat.getSeatNumber());
-        if (exists)
-            throw new IllegalStateException("Asiento ya registrado en esta fila.");
+        if(seat.getScreenRows().getId() != null) {
+            ScreenRows sr = screenRowsRepository.findById(seat.getScreenRows().getId())
+                    .orElseThrow( () -> new Exceptions.RowNotFoundException(seat.getScreenRows().getId().toString()));
+            seat.setScreenRows(sr);
+        }
+
+
+        if (this.repository.existsByScreenRowsIdAndSeatNumber(seat.getScreenRows().getId(), seat.getSeatNumber()))
+            throw new Exceptions.SeatAlreadyExistsException(seat.getSeatNumber().toString());
 
         if(!seatsLeftInScreenRow(seat.getScreenRows()))
-            throw new IllegalStateException("No se pueden añadir más asientos a esta fila, límite alcanzado.");
+            throw new Exceptions.SeatsLimitException(seat.getSeatNumber().toString());
+
 
         return this.repository.save(seat);
 
     }
+
+
 
     public boolean seatsLeftInScreenRow(ScreenRows sr){
         long count = this.repository.countByScreenRowsId(sr.getId());
@@ -58,7 +73,15 @@ public class SeatServiceImpl implements SeatService {
 
     @Override
     public List<Seat> findAllSeatsInScreen(Long id){
-       return  this.repository.findAllByScreenId(id);
+
+        List<Seat> seats = this.repository.findAllByScreenId(id);
+        for (Seat s: seats ){
+
+            ScreenRows sr = this.screenRowsRepository.findById(s.getScreenRows().getId())
+                    .orElseThrow(()-> new Exceptions.RowNotFoundException(s.getScreenRows().getId().toString()));
+            s.setScreenRows(sr);
+        }
+        return seats;
     }
 
     @Override
@@ -84,13 +107,13 @@ public class SeatServiceImpl implements SeatService {
 
             // Comprobar si se excede la capacidad de la fila
             if (totalSeatsAfterAdding > screenRow.getNumberOfSeats()) {
-                throw new IllegalStateException("La capacidad de la fila " + rowId + " será excedida al añadir estos asientos.");
+                throw new Exceptions.SeatsLimitException(rowId.toString());
             }
 
             // Verificar si el asiento ya existe
             boolean exists = this.repository.existsByScreenRowsIdAndSeatNumber(rowId, seat.getSeatNumber());
             if (exists) {
-                throw new IllegalStateException("Asiento ya registrado en la fila con ID: " + rowId);
+                throw new Exceptions.SeatAlreadyExistsException(rowId.toString());
             }
         }
 
@@ -98,6 +121,20 @@ public class SeatServiceImpl implements SeatService {
         return this.repository.saveAll(seats);
     }
 
+    @Override
+    @Transactional
+    public List<Seat> updateSeatsDTO(List<SeatTypeDTO> seatsTypeDTO) {
+
+        List<Seat> seatsToUpdate = new ArrayList<>();
+
+        for(SeatTypeDTO s: seatsTypeDTO){
+            Seat updatedSeat = this.repository.getReferenceById(s.getId());
+            updatedSeat.setSeatType(String.valueOf(s.getSeat_type()));
+            seatsToUpdate.add(updatedSeat);
+        }
+
+        return this.repository.saveAll(seatsToUpdate);
+    }
 
 
     @Override
@@ -146,7 +183,7 @@ public class SeatServiceImpl implements SeatService {
         List<SeatDTO>  allSeatsDTO = new ArrayList<>();
         for (Seat s: allSeats){
            ScreenRows sr = this.screenRowsRepository.findById(s.getScreenRows().getId())
-                    .orElseThrow(()-> new RuntimeException("No existe esa fila"));
+                    .orElseThrow(()-> new Exceptions.RowNotFoundException(s.getScreenRows().getId().toString()));
             s.setScreenRows(sr);
             SeatDTO seatDTO = s.toDTOWithRowNumber(sr.getRowNumber());
             allSeatsDTO.add(seatDTO);
@@ -154,6 +191,7 @@ public class SeatServiceImpl implements SeatService {
 
         return allSeatsDTO;
     }
+
 
 
 }

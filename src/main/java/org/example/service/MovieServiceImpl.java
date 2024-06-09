@@ -2,26 +2,41 @@ package org.example.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import net.coobird.thumbnailator.Thumbnails;
 import org.example.dto.MovieDTO;
+import org.example.exception.Exceptions;
 import org.example.model.Movie;
 import org.example.repository.MovieRepository;
+import org.example.util.UploadConfig;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.example.util.MovieTitleUtil.getFileExtension;
+import static org.example.util.MovieTitleUtil.sanitizeTitle;
 
 @Service
 public class MovieServiceImpl implements MovieService {
 
-    private MovieRepository repository;
+    private final MovieRepository repository;
+    private final UploadConfig uploadConfig;
 
-    public MovieServiceImpl(MovieRepository repository) {
+    public MovieServiceImpl(MovieRepository repository, UploadConfig uploadConfig) {
         this.repository = repository;
+        this.uploadConfig = uploadConfig;
     }
     @Override
     public List<MovieDTO> findAll() {
@@ -64,10 +79,8 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public Optional<MovieDTO> findMovieByTitle(String name) {
-
-        Movie movie = this.repository.findMovieByTitle(name);
-        return Optional.of(convertToDto(movie));
+    public Optional<Movie> findMovieByTitle(String name) {
+        return this.repository.findMovieByTitle(name);
     }
 
     @Override
@@ -156,6 +169,40 @@ public class MovieServiceImpl implements MovieService {
 
         return movie;
     }
+    @Override
+    public Movie handleFileUpload(Movie movie, MultipartFile file) {
+        Path uploadPath = Paths.get(uploadConfig.getUploadDir());
+
+        try {
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            if (file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty()) {
+                throw new Exceptions.EmptyFileNameTitleException("");
+            }
+
+            String fileName = sanitizeTitle(movie.getTitle()) + getFileExtension(file.getOriginalFilename());
+
+            Path filePath = uploadPath.resolve(fileName);
+
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+            }
+
+            Thumbnails.of(file.getInputStream())
+                    .size(386, 546)
+                    .toFile(filePath.toFile());
+
+            movie.setImage(fileName);
+
+            return movie;
+        } catch (IOException e) {
+            throw new Exceptions.FileErrorException(e.getMessage());
+        }
+    }
+
+
 
 
 }

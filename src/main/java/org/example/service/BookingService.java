@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.dto.FullTicketWithDetailsDTO;
 import org.example.model.Booking;
 import org.example.model.Ticket;
 import org.example.model.User;
@@ -23,5 +24,7 @@ public interface BookingService {
 
     // UPDATE
     Booking update(Booking booking);
+
+    List<FullTicketWithDetailsDTO> validateBooking(String identifier);
 
 }

@@ -3,8 +3,10 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import net.coobird.thumbnailator.Thumbnails;
 import org.example.dto.MovieDTO;
+import org.example.mapper.MovieMapper;
 import org.example.model.Movie;
 import org.example.service.MovieService;
+import org.example.util.UploadConfig;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,17 +26,13 @@ import static org.example.util.MovieTitleUtil.sanitizeTitle;
 @RequestMapping("/api")
 public class MovieController {
 
-    private MovieService service;
+    private final MovieService service;
 
-    private static final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     public MovieController(MovieService service) {
         this.service = service;
-    }
 
-    /*
-    GET http://localhost:8080/api/movies
-     */
+    }
 
     @GetMapping("/movies")
     public ResponseEntity<List<MovieDTO>> findAll(){
@@ -48,9 +46,6 @@ public class MovieController {
 
     }
 
-    /*
-    GET http://localhost:8080/api/movies/1
-     */
     @GetMapping("/movies/{id}")
     public ResponseEntity<MovieDTO> findById(@PathVariable Long id){
 
@@ -60,22 +55,6 @@ public class MovieController {
 
     }
 
-      /*
-    POST http://localhost:8080/api/movies
-     */
- /*
-    @PostMapping("/movies")
-    public ResponseEntity<MovieDTO> create(@Valid @RequestBody Movie movie){
-
-        if(movie.getId() != null)
-            return ResponseEntity.badRequest().build();
-
-        MovieDTO savedMovie = this.service.save(movie);
-
-        return ResponseEntity.ok(savedMovie);
-    }
-    */
-
 
     @PostMapping(value = "/movies", consumes = "multipart/form-data")
     public ResponseEntity<MovieDTO> create(@Valid @RequestPart("movie") Movie movie,
@@ -83,12 +62,12 @@ public class MovieController {
         if (movie.getId() != null)
             return ResponseEntity.badRequest().build();
 
-        return handleFileUploadAndSaveMovie(movie, file);
+        Movie movieTosave = this.service.handleFileUpload(movie,file);
+        MovieDTO movieSaved = this.service.save(movieTosave);
+
+        return ResponseEntity.ok(movieSaved);
     }
 
-    /*
-    PUT http://localhost:8080/api/movies
-     */
     @PutMapping(value = "/movies/{id}", consumes = "multipart/form-data")
     public ResponseEntity<MovieDTO> update(@PathVariable Long id,
                                            @Valid @RequestPart("movie") Movie movie,
@@ -98,7 +77,10 @@ public class MovieController {
             return ResponseEntity.badRequest().build();
 
         movie.setId(id);
-        return handleFileUploadAndSaveMovie(movie, file);
+        Movie movieToUpdate = this.service.handleFileUpload(movie, file);
+        MovieDTO updatedMovie = this.service.update(movieToUpdate);
+
+        return ResponseEntity.ok(updatedMovie);
     }
 
     @DeleteMapping ("/movies/{identifier}")
@@ -108,11 +90,6 @@ public class MovieController {
         return ResponseEntity.noContent().build();
     }
 
-
-    /*
-    OTROS
-
-     */
     @GetMapping ("/movies/releases")
     public ResponseEntity<List<MovieDTO>> findRecentMovies(){
 
@@ -124,46 +101,6 @@ public class MovieController {
         return ResponseEntity.ok(moviesDTO);
     }
 
-    private ResponseEntity<MovieDTO> handleFileUploadAndSaveMovie(Movie movie, MultipartFile file) {
-        try {
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                try {
-                    Files.createDirectories(uploadPath);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return ResponseEntity.status(500).body(null);
-                }
-            }
-
-            if (Objects.equals(file.getOriginalFilename(), "")) {
-                throw new RuntimeException("Título de archivo vacío");
-            }
-
-            String sanitizedTitle = sanitizeTitle(movie.getTitle());
-            String fileExtension = getFileExtension(file.getOriginalFilename());
-            String fileName = sanitizedTitle + fileExtension;
-
-            Path filePath = uploadPath.resolve(fileName);
-
-
-            if (Files.exists(filePath)) {
-                Files.delete(filePath);
-            }
-
-            Thumbnails.of(file.getInputStream())
-                    .size(386, 546)
-                    .toFile(filePath.toFile());
-
-            movie.setImage(fileName);
-
-            MovieDTO savedMovie = this.service.save(movie);
-            return ResponseEntity.ok(savedMovie);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body(null);
-        }
-    }
 
 
 

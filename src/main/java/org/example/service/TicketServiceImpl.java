@@ -2,12 +2,15 @@ package org.example.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.example.dto.FullTicketWithDetailsDTO;
-import org.example.dto.MovieDTO;
-import org.example.dto.TicketDTO;
-import org.example.dto.TicketWithUserDTO;
+import org.example.dto.*;
+import org.example.exception.Exceptions;
+import org.example.mapper.ScreeningMapper;
+import org.example.mapper.TicketMapper;
 import org.example.model.*;
 import org.example.repository.*;
+import org.example.service.email.EmailService;
+import org.example.service.email.PdfService;
+import org.example.util.IdGenerator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,10 +30,14 @@ public class TicketServiceImpl implements TicketService {
     private final ScreenRepository screenRepository;
 
     private final Screen_rowsRepository screenRowsRepository;
+    private final UserRepository userRepository;
+
+    private final PdfService pdfService;
+    private  final EmailService emailService;
 
 
     private final MovieRepository movieRepository;
-    public TicketServiceImpl(TicketRepository ticketRepository, BookingRepository bookingRepository, SeatRepository seatRepository, ScreeningRepository screeningRepository, CinemaRepository cinemaRepository, ScreenRepository screenRepository, Screen_rowsRepository screenRowsRepository, MovieRepository movieRepository) {
+    public TicketServiceImpl(TicketRepository ticketRepository, BookingRepository bookingRepository, SeatRepository seatRepository, ScreeningRepository screeningRepository, CinemaRepository cinemaRepository, ScreenRepository screenRepository, Screen_rowsRepository screenRowsRepository, UserRepository userRepository, PdfService pdfService, EmailService emailService, MovieRepository movieRepository) {
         this.ticketRepository = ticketRepository;
         this.bookingRepository = bookingRepository;
         this.seatRepository = seatRepository;
@@ -38,6 +45,9 @@ public class TicketServiceImpl implements TicketService {
         this.cinemaRepository = cinemaRepository;
         this.screenRepository = screenRepository;
         this.screenRowsRepository = screenRowsRepository;
+        this.userRepository = userRepository;
+        this.pdfService = pdfService;
+        this.emailService = emailService;
         this.movieRepository = movieRepository;
     }
 
@@ -48,7 +58,22 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public Ticket save(Ticket ticket) {
+
+        if(ticket.getBooking().getId()!=null){
+            Booking booking = bookingRepository.findByStrId(ticket.getBooking().getId())
+                    .orElseThrow(() -> new Exceptions.BookingNotFoundException(ticket.getBooking().getId()));
+        }
+        if(ticket.getSeat().getIdSeat()!=null){
+            Seat seat = seatRepository.findById(ticket.getSeat().getIdSeat())
+                    .orElseThrow(() -> new Exceptions.SeatNotFoundException(ticket.getSeat().getIdSeat().toString()));
+        }
+        if(ticket.getScreening().getId()!=null){
+            Screening screening = screeningRepository.findById(ticket.getScreening().getId())
+                    .orElseThrow(() -> new Exceptions.ScreeningNotFoundException(ticket.getScreening().getId().toString()));
+        }
+
         return this.ticketRepository.save(ticket);
+
     }
 
     @Override
@@ -73,49 +98,36 @@ public class TicketServiceImpl implements TicketService {
         return this.ticketRepository.save(ticket);
     }
 
-    @Override
-    public TicketDTO convertToDto(Ticket ticket) {
-        return new TicketDTO(
-                ticket.getSeat().getIdSeat(),
-                ticket.getScreening().getId()
-        );
-    }
 
     @Override
-    public Ticket convertToEntity(TicketDTO ticketDTO) {
-        Ticket ticket = new Ticket();
-        Seat seat = seatRepository.findById(ticketDTO.getSeat_id())
-                .orElseThrow(() -> new EntityNotFoundException("No hay asiento con id : " + ticketDTO.getSeat_id()));
-        Screening screening = screeningRepository.findById(ticketDTO.getScreening_id())
-                .orElseThrow(() -> new EntityNotFoundException("No hay función con id : " + ticketDTO.getScreening_id()));
+    @Transactional
+    public List<FullTicketWithDetailsDTO> buyTicketNoSecurity(TicketWithUserDTO ticketWithUserDTO) {
 
-        if(screeningRepository.countFromNowToNext7Days(screening.getId())>0) {
-            ticket.setScreening(screening);
-        }else{
-            throw new  RuntimeException("La función ya ha empezado");
+        User user = this.userRepository.findByNickname(ticketWithUserDTO.getUserIdentifier())
+                .orElseGet(() -> this.userRepository.findByEmail(ticketWithUserDTO.getUserIdentifier())
+                        .orElseThrow(() -> new Exceptions.UserNotFoundException(ticketWithUserDTO.getUserIdentifier())));
+        String emailTo = user.getEmail();
+
+        // Convertimos el DTO a tickets
+        List <Ticket> tickets = this.convertToEntitiesNoSecure(ticketWithUserDTO);
+
+        for(Ticket t: tickets){
+            System.out.println(t);
         }
+        // Generamos la reserva y guardamos los tickes en la BBDD
+        List<FullTicketWithDetailsDTO> fullTickets = this.generateBookingAndSaveTickets(tickets, user);
 
-        ticket.setSeat(seat);
-        ticket.setScreening(screening);
-        return ticket;
+        if (fullTickets.isEmpty())
+            throw new Exceptions.SeatsNotAvailableException("No hay asientos disponibles ");
+
+        // Generamos el PDF con las entradas y lo enviamos al usuario
+        this.generatePDFandSendEmailToUserFromFullTickets(fullTickets, emailTo);
+
+        return this.generateBookingAndSaveTickets(tickets, user);
     }
 
     @Override
-    public Ticket convertToEntityNoSecure(TicketWithUserDTO ticketWithUserDTO) {
-
-        return null;
-    }
-
-    @Override
-    public double calculateTickePrice(Ticket ticket) {
-        Screening screening = screeningRepository.findById(ticket.getScreening().getId())
-                .orElseThrow(() -> new EntityNotFoundException("No hay función con id : " + ticket.getScreening().getId()));
-
-        double seatType = ticket.getSeat().convert();
-        return seatType * screening.getPrice();
-    }
-
-    @Override
+    @Transactional
     public List<Ticket> convertToEntitiesNoSecure(TicketWithUserDTO ticketWithUserDTO) {
         List <Ticket> tickets = new ArrayList<>();
 
@@ -126,36 +138,36 @@ public class TicketServiceImpl implements TicketService {
             Ticket ticket = new Ticket();
 
             Seat seat = seatRepository.findById(seatId)
-                    .orElseThrow(() -> new EntityNotFoundException("No hay asiento con id : " + seatId));
+                    .orElseThrow(() -> new Exceptions.SeatNotFoundException(seatId.toString()));
             System.out.println(seat);
 
             ScreenRows sr = screenRowsRepository.findById(seat.getScreenRows().getId())
-                    .orElseThrow(() -> new RuntimeException("No hay fila con id : " + seat.getScreenRows().getId()));
+                    .orElseThrow(() -> new Exceptions.RowNotFoundException(seat.getScreenRows().getId().toString()));
             seat.setScreenRows(sr);
 
             System.out.println(sr);
 
             Screening screening = screeningRepository.findById(ticketWithUserDTO.getScreening_id())
-                    .orElseThrow(() -> new EntityNotFoundException("No hay función con id : " + ticketWithUserDTO.getScreening_id()));
+                    .orElseThrow(() -> new Exceptions.ScreeningNotFoundException(ticketWithUserDTO.getScreening_id().toString()));
             Movie movie = movieRepository.findById(screening.getMovie().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("No hay pelicula con id : " + screening.getMovie().getId()));
+                    .orElseThrow(() -> new Exceptions.MovieNotFoundException(screening.getMovie().getId().toString()));
             screening.setMovie(movie);
 
             System.out.println(screening);
             System.out.println(movie);
 
             Screen screen = screenRepository.findById(screening.getScreen().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("No hay sala con id : " + screening.getScreen().getId()));
+                    .orElseThrow(() -> new Exceptions.ScreenNotFoundException( screening.getScreen().getId().toString()));
             screening.setScreen(screen);
 
             Cinema cinema = cinemaRepository.findById(screen.getCinema().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("No hay cine con id : " + screen.getCinema().getId()));
+                    .orElseThrow(() -> new Exceptions.CinemaNotFoundException(screen.getCinema().getId().toString()));
             screen.setCinema(cinema);
 
             if(screeningRepository.countFromNowToNext7Days(screening.getId())>0) {
                 ticket.setScreening(screening);
             }else{
-                throw new  RuntimeException("La función ya ha empezado");
+                throw new Exceptions.ScreeninAlreadyStartedtException(screening.getId().toString());
             }
 
             ticket.setSeat(seat);
@@ -169,6 +181,57 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional
+    public List<FullTicketWithDetailsDTO> generateBookingAndSaveTickets(List<Ticket> tickets, User user) {
+
+        List <FullTicketWithDetailsDTO> fullTicketsGenerated = new ArrayList<>();
+
+        Booking booking = new Booking();
+        System.out.println("nuevo booking "+ booking);
+        booking.setId(IdGenerator.randomString(9));
+        booking.setUser(user);
+        booking = bookingRepository.save(booking);
+
+        System.out.println("booking con identificador generado"+ booking);
+
+        System.out.println("vamos a recorrer los tickets del dto y crearlos");
+
+        for (Ticket t: tickets){
+            t.setBooking(booking);
+
+            FullTicketWithDetailsDTO fullTicket = TicketMapper.toFullTicketWithDetailsDTO(t);
+
+            fullTicketsGenerated.add(fullTicket);
+
+            Ticket savedSTicket = this.ticketRepository.save(t);
+        }
+
+        return fullTicketsGenerated;
+    }
+
+    @Override
+    @Transactional
+    public void generatePDFandSendEmailToUserFromFullTickets(List<FullTicketWithDetailsDTO> fullTickets, String emailTo){
+
+        try {
+            byte[] pdfBytes = pdfService.generatePdfOfFullTicket(fullTickets);
+
+            try{
+                emailService.sendEmailWithPdf(emailTo,
+                        "Entrada de Cine - FilMMes",
+                        "Muchas gracias por efectuar su compra.",
+                        fullTickets.getFirst().getIdentifier(),
+                        pdfBytes);
+
+            }catch (Exception e){
+                throw new Exceptions.EmailErrorException(e.getMessage());
+            }
+        } catch (Exception e) {
+            throw new Exceptions.PDFErrorException(e.getMessage());
+        }
+    }
+
+    @Override
     public int countTicketsByUserAndMovie(long userId, long movieId) {
         return this.ticketRepository.countTicketsByUserAndMovie(userId, movieId);
     }
@@ -177,6 +240,8 @@ public class TicketServiceImpl implements TicketService {
     public List<Ticket> findTicketsByBookingIdAndAvailableIsTrue(String bookingId) {
         return this.ticketRepository.findTicketsByBookingIdAndAvailableIsTrue(bookingId);
     }
+
+
 
 
 }

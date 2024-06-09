@@ -13,9 +13,9 @@ public interface ReviewService {
     //FIND
     List<Review> findAll();
     Optional<Review> findById(Long id);
-    List<Review> findAllByMovieId(Long id);
+    List<ReviewDTO> findAllByMovieId(Long id);
     // CREATE
-    Review save(Review review);
+    ReviewDTO save(Review review);
 
     // DELETE
     void deleteById(Long id);
@@ -24,10 +24,8 @@ public interface ReviewService {
     // UPDATE
     Review update(Review review);
 
-    ReviewDTO convertToDto(Review review);
 
-    Review convertToEntity(ReviewDTO reviewDTO);
+    List<ReviewDTO> findAllByUserId(Long id);
 
-    List<Review> findAllByUserId(Long id);
 
 }

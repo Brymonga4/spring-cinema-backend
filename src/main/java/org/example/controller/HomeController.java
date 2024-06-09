@@ -1,6 +1,5 @@
 package org.example.controller;
 
-import org.example.model.AdminLink;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

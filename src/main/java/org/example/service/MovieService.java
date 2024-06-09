@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dto.MovieDTO;
 import org.example.model.Movie;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,7 @@ public interface MovieService {
     List<MovieDTO> findAll();
     List<MovieDTO> findAllByYear(Integer year);
     Optional<MovieDTO> findById(Long id);
-    Optional<MovieDTO> findMovieByTitle(String title);
+    Optional<Movie> findMovieByTitle(String title);
     // CREATE
     MovieDTO save(Movie movie);
 
@@ -31,5 +32,7 @@ public interface MovieService {
     MovieDTO convertToDto(Movie movie);
 
     Movie convertToEntity(MovieDTO movieDto);
+
+    Movie handleFileUpload(Movie movie, MultipartFile file);
 
 }

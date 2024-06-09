@@ -1,6 +1,7 @@
 package org.example.repository;
 
 import jakarta.persistence.LockModeType;
+import org.example.dto.MovieDTO;
 import org.example.model.Movie;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MovieRepository extends JpaRepository<Movie, Long> {
@@ -29,7 +31,7 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM Movie m WHERE m.id IN (SELECT s.movie.id FROM Screening s WHERE s.start_time BETWEEN CURRENT_DATE AND :endDate)")
     List<Movie> findMovieListingUntilenDate(LocalDateTime endDate);
 
-    Movie findMovieByTitle(String title);
+    Optional<Movie> findMovieByTitle(String title);
 
 
 
