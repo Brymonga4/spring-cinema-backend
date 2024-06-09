@@ -41,16 +41,4 @@ public class Review {
     private LocalDateTime review_date;
 
 
-    public ReviewDTO reviewToDTO(){
-        return ReviewDTO.builder()
-                .id(id)
-                .movieTitle(movie.getTitle())
-                .userNickname(user.getNickname())
-                .title(title)
-                .opinion(opinion)
-                .rating(rating)
-                .review_date(review_date)
-                .build();
-    }
-
 }

@@ -29,9 +29,7 @@ public interface MovieService {
 
     List<MovieDTO> findMovieListing();
 
-    MovieDTO convertToDto(Movie movie);
-
-    Movie convertToEntity(MovieDTO movieDto);
+    MovieDTO uptadeMovieAndCover(Movie movie, MultipartFile file);
 
     Movie handleFileUpload(Movie movie, MultipartFile file);
 

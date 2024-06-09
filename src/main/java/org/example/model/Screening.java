@@ -48,21 +48,6 @@ public class Screening {
         return start_time;
     }
 
-    public ScreeningDTO toScreeningDTO(){
-        return ScreeningDTO.builder()
-                .Id(id)
-                .cinemaName("Cinema")
-                .screen(Math.toIntExact(screen.getId()))
-                .movieTitle(movie.getTitle())
-                .screeningDayAndHourDTO( ScreeningDayAndHourDTO.builder()
-                        .screeningStartTime(this.getTimeFromStarTime())
-                        .screeningDay(this.getDayFromStartTime())
-                        .build())
-                .audio(audio)
-                .screeningPrice(price)
-                .build();
-    }
-
     public String getDayFromStartTime() {
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

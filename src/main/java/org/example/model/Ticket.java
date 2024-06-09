@@ -36,14 +36,4 @@ public class Ticket {
     private boolean available = true;
 
 
-    public TicketReceiptDTO ticketReceiptDTO(){
-        return TicketReceiptDTO.builder()
-                .id(id)
-                .screeningDate(screening.getDayFromStartTime() +", "+ screening.getStart_time())
-                .cinemaName(screening.getScreen().getCinema().getName())
-                .movieTitle(screening.getMovie().getTitle())
-                .finalPrice(screening.getPrice() * seat.convert())
-                .build();
-    }
-
 }

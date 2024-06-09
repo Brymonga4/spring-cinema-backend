@@ -44,8 +44,8 @@ public class TicketMapper {
     public static TicketReceiptDTO toTicketReceiptDTO(Ticket t){
 
         return  TicketReceiptDTO.builder()
-                .id(Long.valueOf(t.getBooking().getId()))
-                .screeningDate(t.getScreening().getDayFromStartTime()+", "+t.getScreening().getStart_time())
+                .identifier(t.getBooking().getId())
+                .screeningDate(t.getScreening().getDayFromStartTime()+", "+t.getScreening().getTimeFromStarTime())
                 .cinemaName(t.getScreening().getScreen().getCinema().getName())
                 .movieTitle(t.getScreening().getMovie().getTitle())
                 .finalPrice(t.getScreening().getPrice() * t.getSeat().convert())

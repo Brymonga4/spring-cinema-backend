@@ -28,7 +28,10 @@ public class BookingServiceImpl implements BookingService{
     private final MovieRepository movieRepository;
     private final UserRepository userRepository;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, TicketRepository ticketRepository, SeatRepository seatRepository, Screen_rowsRepository screenRowsRepository, ScreeningRepository screeningRepository, MovieRepository movieRepository, UserRepository userRepository) {
+    public BookingServiceImpl(BookingRepository bookingRepository, TicketRepository ticketRepository,
+                              SeatRepository seatRepository, Screen_rowsRepository screenRowsRepository,
+                              ScreeningRepository screeningRepository, MovieRepository movieRepository,
+                              UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
         this.ticketRepository = ticketRepository;
         this.seatRepository = seatRepository;

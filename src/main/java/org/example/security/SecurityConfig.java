@@ -1,6 +1,6 @@
 package org.example.security;
 
-import org.example.service.CustomUserDetailsService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,11 +15,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
+
     private final PasswordEncoder passwordEncoder;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder) {
-        this.customUserDetailsService = customUserDetailsService;
+    public SecurityConfig( PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
     @Bean
@@ -32,10 +31,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Autowired
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder);
-    }
 }
 
 

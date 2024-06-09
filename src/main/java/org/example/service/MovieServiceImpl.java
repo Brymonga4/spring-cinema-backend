@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import net.coobird.thumbnailator.Thumbnails;
 import org.example.dto.MovieDTO;
 import org.example.exception.Exceptions;
+import org.example.mapper.MovieMapper;
 import org.example.model.Movie;
 import org.example.repository.MovieRepository;
 import org.example.util.UploadConfig;
@@ -42,7 +43,7 @@ public class MovieServiceImpl implements MovieService {
     public List<MovieDTO> findAll() {
 
         return this.repository.findAll().stream()
-                .map(this::convertToDto)
+                .map(MovieMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -50,7 +51,7 @@ public class MovieServiceImpl implements MovieService {
     public List<MovieDTO> findRecentMovies() {
         LocalDate twoWeeksAgo = LocalDate.now().minusWeeks(2);
         return this.repository.findRecentMovies(twoWeeksAgo).stream()
-                .map(this::convertToDto)
+                .map(MovieMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -60,7 +61,7 @@ public class MovieServiceImpl implements MovieService {
         LocalDateTime endDate = LocalDateTime.now().plusDays(14);
 
         return this.repository.findMovieListingUntilenDate(endDate).stream()
-                .map(this::convertToDto)
+                .map(MovieMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -74,7 +75,7 @@ public class MovieServiceImpl implements MovieService {
     public Optional<MovieDTO> findById(Long id) {
 
         return this.repository.findById(id)
-                .map(this::convertToDto);
+                .map(MovieMapper::toDTO);
 
     }
 
@@ -88,10 +89,10 @@ public class MovieServiceImpl implements MovieService {
         MovieDTO movieDTO;
         if (repository.existsByTitleAndOrigTitle(movie.getTitle(), movie.getOrigTitle())) {
             System.out.println(movie.getTitle() + movie.getOrigTitle());
-            throw new IllegalStateException("Ya existe una película con ese título y título original.");
+            throw new Exceptions.MovieNotFoundException("Ya existe una peli con ese titulo");
         }
         else {
-             movieDTO = convertToDto(this.repository.save(movie));
+             movieDTO = MovieMapper.toDTO(this.repository.save(movie));
         }
 
         return movieDTO;
@@ -116,59 +117,6 @@ public class MovieServiceImpl implements MovieService {
         return this.save(movie);
     }
 
-
-    @Override
-    public MovieDTO convertToDto(Movie movie) {
-
-        String baseUrl = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/api/movies/{id}")
-                .buildAndExpand(movie.getId())
-                .toUriString();
-
-        return new MovieDTO(
-                movie.getId(),
-                movie.getTitle(),
-                movie.getOrigTitle(),
-                movie.getRelease(),
-                movie.getGenres(),
-                movie.getActors(),
-                movie.getDirectors(),
-                movie.getScript(),
-                movie.getProducers(),
-                movie.getSynopsis(),
-                movie.isOriginalVersion(),
-                movie.isSpanishVersion(),
-                movie.getImage(),
-                movie.getTrailer(),
-                movie.getAgeRating(),
-                movie.getDuration(),
-                baseUrl
-        );
-    }
-    @Override
-    public Movie convertToEntity(MovieDTO movieDto) {
-        Movie movie = repository.findById(movieDto.getId())
-                .orElseThrow(() -> new EntityNotFoundException("No hay película con id : " + movieDto.getId()));
-
-        movie.setTitle(movieDto.getTitle());
-        movie.setOrigTitle(movieDto.getOrigTitle());
-        movie.setRelease(movieDto.getRelease());
-        movie.setGenres(movieDto.getGenres());
-        movie.setActors(movieDto.getActors());
-        movie.setDirectors(movieDto.getDirectors());
-        movie.setScript(movieDto.getScript());
-        movie.setProducers(movieDto.getProducers());
-        movie.setSynopsis(movieDto.getSynopsis());
-        movie.setOriginalVersion(movieDto.isOriginalVersion());
-        movie.setSpanishVersion(movieDto.isSpanishVersion());
-        movie.setImage(movieDto.getImage());
-        movie.setTrailer(movieDto.getTrailer());
-        movie.setAgeRating(movieDto.getAgeRating());
-        movie.setDuration(movieDto.getDuration());
-
-        return movie;
-    }
     @Override
     public Movie handleFileUpload(Movie movie, MultipartFile file) {
         Path uploadPath = Paths.get(uploadConfig.getUploadDir());
@@ -200,6 +148,15 @@ public class MovieServiceImpl implements MovieService {
         } catch (IOException e) {
             throw new Exceptions.FileErrorException(e.getMessage());
         }
+    }
+
+    @Override
+    @Transactional
+    public MovieDTO uptadeMovieAndCover(Movie movie, MultipartFile file){
+
+        Movie movieToUpdate = this.handleFileUpload(movie, file);
+
+        return this.update(movieToUpdate);
     }
 
 

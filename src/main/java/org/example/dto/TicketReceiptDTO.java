@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @Data
 public class TicketReceiptDTO {
-    private Long id;
+    private String identifier;
     private String screeningDate;
     private String cinemaName;
     private String movieTitle;

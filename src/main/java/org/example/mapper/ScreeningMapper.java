@@ -35,7 +35,8 @@ public class ScreeningMapper {
                 .screen(Math.toIntExact(screening.getScreen().getId()))
                 .movieTitle(screening.getMovie().getTitle())
 
-                .screeningDayAndHourDTO(ScreeningMapper.toScreeningDayAndHourDTO(screening.getStart_time()))
+                .screeningDayAndHourDTO(ScreeningMapper.
+                        toScreeningDayAndHourDTO(screening.getStart_time()))
 
                 .audio(screening.getAudio())
                 .screeningPrice(screening.getPrice())

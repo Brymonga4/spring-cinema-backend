@@ -136,7 +136,8 @@ public class ScreeningController {
 
         Screening savedScreening = this.screeningService.save(ScreeningMapper.toEntity(screeningDTO));
 
-        return ResponseEntity.ok(savedScreening.toScreeningDTO());
+
+        return ResponseEntity.ok(ScreeningMapper.toDTO(savedScreening));
     }
 
     @PutMapping("/screenings/{id}")

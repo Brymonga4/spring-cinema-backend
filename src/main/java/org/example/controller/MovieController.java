@@ -77,8 +77,7 @@ public class MovieController {
             return ResponseEntity.badRequest().build();
 
         movie.setId(id);
-        Movie movieToUpdate = this.service.handleFileUpload(movie, file);
-        MovieDTO updatedMovie = this.service.update(movieToUpdate);
+        MovieDTO updatedMovie = this.service.uptadeMovieAndCover(movie,file);
 
         return ResponseEntity.ok(updatedMovie);
     }
