@@ -3,6 +3,7 @@ package org.example.controller;
 import jakarta.validation.Valid;
 import org.example.dto.MovieDTO;
 import org.example.dto.ReviewDTO;
+import org.example.dto.ReviewsAndAverageDTO;
 import org.example.mapper.ReviewMapper;
 import org.example.model.*;
 import org.example.service.MovieService;
@@ -62,6 +63,17 @@ public class ReviewController {
         return ResponseEntity.ok(reviewDTOs);
 
     }
+    @GetMapping("/movie/{id}/reviews/averageRating")
+    public ResponseEntity<ReviewsAndAverageDTO> findAllByMovieIdAndAverage(@PathVariable Long id){
+
+        ReviewsAndAverageDTO reviewDTOs = this.reviewService.findAllByMovieIdAndAverage(id);
+
+        if (reviewDTOs.getReviews().isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(reviewDTOs);
+
+    }
 
     @GetMapping("/user/{id}/reviews")
     public ResponseEntity<List<ReviewDTO>> findAllByUserId(@PathVariable Long id){
@@ -74,6 +86,8 @@ public class ReviewController {
         return ResponseEntity.ok(reviewsDTO);
 
     }
+
+
 
 
     @PostMapping("/movie/{id}/reviews")

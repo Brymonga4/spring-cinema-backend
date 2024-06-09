@@ -126,4 +126,10 @@ public class Exceptions {
             super(message);
         }
     }
+
+    public static class UserCantReviewMovieException extends RuntimeException {
+        public UserCantReviewMovieException(String message) {
+            super(message);
+        }
+    }
 }

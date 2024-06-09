@@ -26,5 +26,7 @@ public class Messages {
     public static final String MSG_PDF_GENERATED_ERROR = "Error al generar el PDF.";
     public static final String MSG_RECOVER_CODE_ERROR = "Codigo de recuperación incorrecto para ese usuario";
 
+    public static final String MSG_USER_REVIEW_ERROR = "El usuario no puede escribir opiniones sobre esta pelicula";
+
 
 }

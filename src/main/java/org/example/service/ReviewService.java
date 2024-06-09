@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.dto.ReviewDTO;
+import org.example.dto.ReviewsAndAverageDTO;
 import org.example.dto.TicketDTO;
 import org.example.model.Review;
 import org.example.model.Ticket;
@@ -14,6 +15,7 @@ public interface ReviewService {
     List<Review> findAll();
     Optional<Review> findById(Long id);
     List<ReviewDTO> findAllByMovieId(Long id);
+    ReviewsAndAverageDTO findAllByMovieIdAndAverage(Long id);
     // CREATE
     ReviewDTO save(Review review);
 

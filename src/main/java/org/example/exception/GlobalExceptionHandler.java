@@ -133,6 +133,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleRecoverErrorException(Exceptions.RecoverErrorException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(MSG_RECOVER_CODE_ERROR+ex.getMessage());
     }
+    @ExceptionHandler(Exceptions.UserCantReviewMovieException.class)
+    public ResponseEntity<String> handleUserCantReviewMovieException(Exceptions.UserCantReviewMovieException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(MSG_USER_REVIEW_ERROR+ex.getMessage());
+    }
 
 
 }
