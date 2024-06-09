@@ -43,7 +43,7 @@ public class TicketController {
 
 
     @PostMapping("/screenings/ticket/buyNoSecurity")
-    public ResponseEntity<List<FullTicketWithDetailsDTO>> buyTicketNoSecurity(@Valid @RequestBody TicketWithUserDTO ticketWithUserDTO){
+    public ResponseEntity<List<FullTicketWithDetailsDTO>> buyTicketNoSecurity(@Valid @RequestBody TicketWithUserDTO ticketWithUserDTO) {
 
         List<FullTicketWithDetailsDTO> fullTickets = this.ticketService.buyTicketNoSecurity(ticketWithUserDTO);
         return ResponseEntity.ok(fullTickets);

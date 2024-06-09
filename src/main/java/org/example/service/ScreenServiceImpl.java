@@ -160,6 +160,7 @@ public class ScreenServiceImpl implements ScreenService {
 
             Seat seat = Seat.builder()
                     .idSeat(null)
+                    .screenRows(sr)
                     .seatNumber((long) i+1)
                     .seatType("N")
                     .reserved(false)

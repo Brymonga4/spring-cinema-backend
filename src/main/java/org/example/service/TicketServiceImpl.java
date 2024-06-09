@@ -101,7 +101,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public List<FullTicketWithDetailsDTO> buyTicketNoSecurity(TicketWithUserDTO ticketWithUserDTO) {
+    public List<FullTicketWithDetailsDTO> buyTicketNoSecurity(TicketWithUserDTO ticketWithUserDTO){
 
         User user = this.userRepository.findByNickname(ticketWithUserDTO.getUserIdentifier())
                 .orElseGet(() -> this.userRepository.findByEmail(ticketWithUserDTO.getUserIdentifier())
@@ -211,7 +211,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public void generatePDFandSendEmailToUserFromFullTickets(List<FullTicketWithDetailsDTO> fullTickets, String emailTo){
+    public void generatePDFandSendEmailToUserFromFullTickets(List<FullTicketWithDetailsDTO> fullTickets, String emailTo) {
 
         try {
             byte[] pdfBytes = pdfService.generatePdfOfFullTicket(fullTickets);

@@ -25,6 +25,8 @@ import java.awt.image.BufferedImage;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.example.util.MovieTitleUtil.sanitizeTitle;
+
 @Service
 public class PdfService {
 
@@ -202,6 +204,7 @@ public class PdfService {
         PdfFont bold = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
         PdfFont normal = PdfFontFactory.createFont(StandardFonts.HELVETICA);
         PdfFont dataFont = PdfFontFactory.createFont(StandardFonts.COURIER);
+        System.out.println(UPLOAD_DIR);
 
         Path uploadPath = Paths.get(UPLOAD_DIR);
         int i = 0;
@@ -241,9 +244,13 @@ public class PdfService {
                                 .create(qrBaos.toByteArray()))
                                 .scaleToFit(300,300);
 
+        String sanitizedTitle = sanitizeTitle(ft.getScreeningDTO().getMovieTitle());
+
+        System.out.println(uploadPath+"/"+sanitizedTitle+".jpg");
+
         // Imagen de la película
         Image movieImage = new Image(ImageDataFactory
-                                    .create(uploadPath+"/"+ft.getScreeningDTO().getMovieTitle()+".jpg"))
+                                    .create(uploadPath+"/"+sanitizedTitle+".jpg"))
                                     .scaleToFit(280,280);
 
         // Tabla de QR e imagen de peli

@@ -134,9 +134,10 @@ public class ScreeningController {
     @PostMapping("/screenings")
     public ResponseEntity<ScreeningDTO> create(@Valid @RequestBody ScreeningDTO screeningDTO){
 
+        System.out.println(screeningDTO.getScreeningPrice());
         Screening savedScreening = this.screeningService.save(ScreeningMapper.toEntity(screeningDTO));
 
-
+        System.out.println(savedScreening.getPrice());
         return ResponseEntity.ok(ScreeningMapper.toDTO(savedScreening));
     }
 
