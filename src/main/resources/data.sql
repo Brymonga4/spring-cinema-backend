@@ -21,7 +21,8 @@ INSERT INTO public.movies (
              'Jason Bateman, Mike Blizzard, Michael Costigan, Richard Linklater, Glen Powell',
              'Gary Johnson (Glen Powell) es el asesino profesional más buscado de Nueva Orleans. Un misterioso pistolero a sueldo… que trabaja para la policía. Cuando rompe el protocolo para ayudar a una mujer desesperada (Adria Arjona) que intenta huir de un marido maltratador, acaba convirtiéndose en uno de sus falsos personajes y coqueteará con transformarse en un verdadero criminal.',
              true, true, 'hitman.jpg',
-             'https://www.youtube.com/watch?v=dm4KP55jdqI', 'PG-16', 113
+             'https://www.youtube.com/embed/dm4KP55jdqI', 'PG-16', 113
+
          ),
 
          (
@@ -33,7 +34,7 @@ INSERT INTO public.movies (
              'Jerry Bruckheimer, Will Smith, Chad Oman, Doug Belgrad',
              'Este verano, los policías más famosos del mundo regresan con su icónica mezcla de acción al límite y comedia escandalosa, pero esta vez con un giro inesperado: ¡Los mejores de Miami se dan a la fuga!.',
              true, true, 'badboys.jpg',
-             'https://www.youtube.com/watch?v=LOZqqEXURzg', 'PG-16', 117
+             'https://www.youtube.com/embed/LOZqqEXURzg', 'PG-16', 117
          ),
          (
              'El reino del planeta de los simios', 'Kingdom of the Planet of the Apes',
@@ -44,7 +45,7 @@ INSERT INTO public.movies (
              'Wes Ball, Joe Hartwick Jr., Rick Jaffa, Amanda Silver, Jason Reed',
              'Ambientada varias generaciones en el futuro tras el reinado de César, en la que los simios son la especie dominante que vive en armonía y los humanos se han visto reducidos a vivir en la sombra. Mientras un nuevo y tiránico líder simio construye su imperio, un joven simio emprende un angustioso viaje que le llevará a cuestionarse todo lo que sabe sobre el pasado y a tomar decisiones que definirán el futuro de simios y humanos por igual.',
              true, true, 'monki.jpg',
-             'https://www.youtube.com/watch?v=OcBktw-5QlE', 'PG-12', 145
+             'https://www.youtube.com/embed/OcBktw-5QlE', 'PG-12', 145
          ),
 
          (
@@ -56,7 +57,7 @@ INSERT INTO public.movies (
              'Doug Mitchell, George Miller',
              'Al caer el mundo, la joven Furiosa (Anya Taylor-Joy) es arrebatada del Lugar Verde de Muchas Madres y cae en manos de una gran Horda de Motoristas liderada por el Señor de la Guerra Dementus. Arrasando el Páramo, se topan con la Ciudadela presidida por El Inmortan Joe. Mientras los dos Tiranos luchan por el dominio, Furiosa debe sobrevivir a muchas pruebas mientras reúne los medios para encontrar el camino de vuelta a casa.',
              true, true, 'hitman.jpg',
-             'https://www.youtube.com/watch?v=GgerHF86Rv4', 'PG-16', 148
+             'https://www.youtube.com/embed/GgerHF86Rv4', 'PG-16', 148
          )
 ON CONFLICT (title, orig_title) DO NOTHING;
 

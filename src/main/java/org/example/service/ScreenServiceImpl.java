@@ -67,6 +67,7 @@ public class ScreenServiceImpl implements ScreenService {
             }
             // Asigno la lista de asientos al DTO
             screenAndSeatsDTO.setSeats(seatsDTO);
+            screenAndSeatsDTOS.add(screenAndSeatsDTO);
         }
         //  Fin de por cada sala
 

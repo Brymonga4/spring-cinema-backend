@@ -84,15 +84,17 @@ public class MovieController {
     @PutMapping(value = "/movies/{id}", consumes = "multipart/form-data")
     public ResponseEntity<MovieDTO> update(@PathVariable Long id,
                                            @Valid @RequestPart("movie") Movie movie,
-                                           @RequestPart("file") MultipartFile file) {
+                                           @RequestPart("file") MultipartFile coverFile,
+                                           @RequestPart("file") MultipartFile releaseFile) {
 
         if (service.findById(id).isEmpty())
             return ResponseEntity.badRequest().build();
 
         movie.setId(id);
-        MovieDTO updatedMovie = this.service.uptadeMovieAndCover(movie,file);
+        Movie movieToUpdate = this.service.handleMultipleFileUpload(movie,coverFile, releaseFile);
+        MovieDTO movieUpdated = this.service.update(movieToUpdate);
 
-        return ResponseEntity.ok(updatedMovie);
+        return ResponseEntity.ok(movieUpdated);
     }
 
     @DeleteMapping ("/movies/{identifier}")

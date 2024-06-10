@@ -2,6 +2,7 @@ package org.example.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.example.util.YoutubeUrlConverter;
 import net.coobird.thumbnailator.Thumbnails;
 import org.example.dto.MovieDTO;
 import org.example.exception.Exceptions;
@@ -92,6 +93,8 @@ public class MovieServiceImpl implements MovieService {
             throw new Exceptions.MovieNotFoundException("Ya existe una peli con ese titulo");
         }
         else {
+            String urlYoutube = YoutubeUrlConverter.convertToEmbedUrl(movie.getTrailer());
+            movie.setTrailer(urlYoutube);
              movieDTO = MovieMapper.toDTO(this.repository.save(movie));
         }
 
