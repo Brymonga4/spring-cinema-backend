@@ -23,9 +23,10 @@ public class BookingController {
     }
 
     @PostMapping("/bookings/validate")
-    public ResponseEntity<List<FullTicketWithDetailsDTO>> validateBooking(@RequestBody String identifier ){
+    public ResponseEntity<List<FullTicketWithDetailsDTO>> validateBooking(@RequestBody TicketValidateDTO ticketValidateDTO ){
 
-        List<FullTicketWithDetailsDTO> fullTickets = this.bookingService.validateBooking(identifier);
+
+        List<FullTicketWithDetailsDTO> fullTickets = this.bookingService.validateBooking(ticketValidateDTO.getIdentifier());
         return ResponseEntity.ok(fullTickets);
 
     }
