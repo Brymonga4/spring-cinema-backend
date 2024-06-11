@@ -109,6 +109,7 @@ public class TicketServiceImpl implements TicketService {
         String emailTo = user.getEmail();
 
         // Convertimos el DTO a tickets
+        System.out.println("Convertimos a entidades los DTOS");
         List <Ticket> tickets = this.convertToEntitiesNoSecure(ticketWithUserDTO);
 
         for(Ticket t: tickets){
@@ -123,7 +124,7 @@ public class TicketServiceImpl implements TicketService {
         // Generamos el PDF con las entradas y lo enviamos al usuario
         this.generatePDFandSendEmailToUserFromFullTickets(fullTickets, emailTo);
 
-        return this.generateBookingAndSaveTickets(tickets, user);
+        return fullTickets;
     }
 
     @Override
@@ -198,8 +199,10 @@ public class TicketServiceImpl implements TicketService {
 
         for (Ticket t: tickets){
             t.setBooking(booking);
+            System.out.println("identificador de ticket" + t.getBooking().getId());
 
             FullTicketWithDetailsDTO fullTicket = TicketMapper.toFullTicketWithDetailsDTO(t);
+            System.out.println("identificador de fullticket "+fullTicket.getIdentifier());
 
             fullTicketsGenerated.add(fullTicket);
 
@@ -216,6 +219,7 @@ public class TicketServiceImpl implements TicketService {
         try {
             byte[] pdfBytes = pdfService.generatePdfOfFullTicket(fullTickets);
 
+            System.out.println("identificador que vamos a crear el QR de"+fullTickets.getFirst().getIdentifier());
             try{
                 emailService.sendEmailWithPdf(emailTo,
                         "Entrada de Cine - FilMMes",

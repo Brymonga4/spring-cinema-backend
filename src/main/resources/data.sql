@@ -1,15 +1,3 @@
-SELECT setval('public.bookings_booking_id_seq', 1, false);
-SELECT setval('public.cinemas_id_seq', 1, false);
-SELECT setval('public.movies_movie_id_seq', 1, false);
-SELECT setval('public.reviews_review_id_seq', 1, false);
-SELECT setval('public.screen_rows_row_id_seq', 1, false);
-SELECT setval('public.screenings_screening_id_seq', 1, false);
-SELECT setval('public.screens_id_screen_seq', 1, false);
-SELECT setval('public.seats_seat_id_seq', 1, false);
-SELECT setval('public.tickets_ticket_id_seq', 1, false);
-SELECT setval('public.users_user_id_seq', 1, false);
-
-
 INSERT INTO public.movies (
     title, orig_title, release_date, genres, actors, directors, script, producers, synopsis, original_version, spanish_version, image, trailer, age_rating, duration
 ) VALUES (

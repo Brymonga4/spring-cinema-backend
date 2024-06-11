@@ -235,6 +235,7 @@ public class PdfService {
         cabecera.addCell(cine);
         cabecera.addCell(titulo);
 
+        System.out.println("identifier dentrodel pdf "+ ft.getIdentifier());
         //Generamos la imagen del QR del identificador
         BufferedImage qrImage = qrCodeService.generateQRCodeImage(ft.getIdentifier());
 
