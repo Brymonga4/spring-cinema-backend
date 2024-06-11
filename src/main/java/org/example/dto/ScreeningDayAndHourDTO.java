@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @Getter
 @Setter
@@ -19,13 +20,29 @@ public class ScreeningDayAndHourDTO {
 
 
     public LocalDateTime converToLocalDateTime(){
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        LocalDate date = LocalDate.parse(screeningDay, dateFormatter);
-        LocalTime time = LocalTime.parse(screeningStartTime, timeFormatter);
+        try {
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        return LocalDateTime.of(date, time);
+            LocalDate date = LocalDate.parse(screeningDay, dateFormatter);
+            LocalTime time = LocalTime.parse(screeningStartTime, timeFormatter);
+
+            return LocalDateTime.of(date, time);
+        }catch (DateTimeParseException e){
+            try {
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+                LocalDate date = LocalDate.parse(screeningDay, dateFormatter);
+                LocalTime time = LocalTime.parse(screeningStartTime, timeFormatter);
+
+                return LocalDateTime.of(date, time);
+            } catch (DateTimeParseException ex){
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+
     }
 
 }

@@ -13,8 +13,8 @@ import java.time.LocalDate;
 @Data  // Esta anotación incluye @ToString, @EqualsAndHashCode, @Getter en todos los campos, @Setter en todos los campos no finales, y @RequiredArgsConstructor
 @NoArgsConstructor  // Genera un constructor sin argumentos
 @AllArgsConstructor // Genera un constructor con un argumento para cada campo en la clase
+@Builder // Permite Generar constructores dinámicos con solo las propiedades que necesites
 @Entity
-@Builder
 @Table(name = "movies")
 public class Movie {
     @Id
