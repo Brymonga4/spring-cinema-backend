@@ -84,8 +84,8 @@ public class MovieController {
     @PutMapping(value = "/movies/{id}", consumes = "multipart/form-data")
     public ResponseEntity<MovieDTO> update(@PathVariable Long id,
                                            @Valid @RequestPart("movie") Movie movie,
-                                           @RequestPart("file") MultipartFile coverFile,
-                                           @RequestPart("file") MultipartFile releaseFile) {
+                                           @RequestPart("coverFile") MultipartFile coverFile,
+                                           @RequestPart("releaseFile") MultipartFile releaseFile) {
 
         if (service.findById(id).isEmpty())
             return ResponseEntity.badRequest().build();

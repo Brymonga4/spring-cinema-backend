@@ -33,4 +33,7 @@ public interface MovieService {
 
     Movie handleFileUpload(Movie movie, MultipartFile file);
     Movie handleMultipleFileUpload(Movie movie, MultipartFile coverFile, MultipartFile releaseFile);
+
+    void handleDeleteFiles(Movie movie);
+
 }

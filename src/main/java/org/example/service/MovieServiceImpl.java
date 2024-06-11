@@ -86,6 +86,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional
     public MovieDTO save(Movie movie) {
         MovieDTO movieDTO;
         if (repository.existsByTitleAndOrigTitle(movie.getTitle(), movie.getOrigTitle())) {
@@ -95,7 +96,7 @@ public class MovieServiceImpl implements MovieService {
         else {
             String urlYoutube = YoutubeUrlConverter.convertToEmbedUrl(movie.getTrailer());
             movie.setTrailer(urlYoutube);
-             movieDTO = MovieMapper.toDTO(this.repository.save(movie));
+            movieDTO = MovieMapper.toDTO(this.repository.save(movie));
         }
 
         return movieDTO;
@@ -103,8 +104,16 @@ public class MovieServiceImpl implements MovieService {
 
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
+        Optional<Movie> movie = this.repository.findById(id);
+        Movie movietoDelete;
+        if(movie.isPresent()){
+            movietoDelete = movie.get();
+            handleDeleteFiles(movietoDelete);
+        }
         this.repository.deleteById(id);
+        
     }
 
     @Override
@@ -115,11 +124,47 @@ public class MovieServiceImpl implements MovieService {
     @Override
     @Transactional
     public MovieDTO update(Movie movie) {
-        //Lo bloqueamos primero
         this.repository.findAndLockById(movie.getId());
-        return this.save(movie);
+        String urlYoutube = YoutubeUrlConverter.convertToEmbedUrl(movie.getTrailer());
+        movie.setTrailer(urlYoutube);
+
+        return MovieMapper.toDTO(this.repository.save(movie));
     }
 
+    @Override
+    @Transactional
+    public void handleDeleteFiles(Movie movie) {
+        
+        Path uploadPath = Paths.get(uploadConfig.getUploadDir());
+        try {
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            if (movie.getTitle() == null || movie.getTitle().isEmpty()) {
+                throw new Exceptions.EmptyFileNameTitleException("");
+            }
+
+            String fileName = sanitizeTitle(movie.getTitle());
+
+            Path filePath = uploadPath.resolve(fileName+".jpg");
+            Path releasePath = uploadPath.resolve("release-"+fileName+".jpg");
+
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+            }
+            
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+            }
+            
+            movie.setImage(fileName);
+
+        } catch (IOException e) {
+            throw new Exceptions.FileErrorException(e.getMessage());
+        }
+    }
+    
     @Override
     public Movie handleFileUpload(Movie movie, MultipartFile file) {
         Path uploadPath = Paths.get(uploadConfig.getUploadDir());
@@ -197,6 +242,8 @@ public class MovieServiceImpl implements MovieService {
             throw new Exceptions.FileErrorException(e.getMessage());
         }
     }
+
+
 
     @Override
     @Transactional
