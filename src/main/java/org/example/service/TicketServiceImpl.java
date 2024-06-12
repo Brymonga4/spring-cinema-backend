@@ -219,12 +219,12 @@ public class TicketServiceImpl implements TicketService {
         try {
             byte[] pdfBytes = pdfService.generatePdfOfFullTicket(fullTickets);
 
-            System.out.println("identificador que vamos a crear el QR de"+fullTickets.getFirst().getIdentifier());
+            //System.out.println("identificador que vamos a crear el QR de"+fullTickets.getFirst().getIdentifier());
             try{
                 emailService.sendEmailWithPdf(emailTo,
                         "Entrada de Cine - FilMMes",
                         "Muchas gracias por efectuar su compra.",
-                        fullTickets.getFirst().getIdentifier(),
+                        fullTickets.get(0).getIdentifier(),
                         pdfBytes);
 
             }catch (Exception e){
