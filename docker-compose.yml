@@ -12,17 +12,16 @@ services:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: brymonga4/spring_boot_backend_cinema:tag
+    ports:
+      - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/cinemadb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+
     depends_on:
       - db
-    ports:
-      - "8080:8080"
 
 volumes:
   pgdata:
