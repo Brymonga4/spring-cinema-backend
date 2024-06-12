@@ -1,21 +1,31 @@
 package org.example.model;
 
 import jakarta.persistence.*;
+import lombok.*;
+import org.example.dto.ReviewDTO;
+
 import java.time.LocalDateTime;
 
+@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "reviews")
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="review_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie", referencedColumnName = "id_movie")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "movie_id", referencedColumnName = "movie_id")
     private Movie movie;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "nickname", referencedColumnName = "nickname")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
 
     @Column(nullable = false)
@@ -28,5 +38,7 @@ public class Review {
     private Short rating;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDateTime review_date;
+
+
 }

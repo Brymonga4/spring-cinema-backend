@@ -1,19 +1,71 @@
-INSERT INTO public.movies
-    (id_movie, title, orig_title, release, genres, actors, directors, script, producers, synopsis, original_version, spanish_version, image, trailer, age_rating, duration)
-VALUES
-  (1, 'Inception', 'Inception', '2010-07-16', 'Sci-Fi, Thriller', 'Leonardo DiCaprio, Joseph Gordon-Levitt', 'Christopher Nolan', 'Christopher Nolan', 'Emma Thomas, Christopher Nolan', 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a CEO.', true, false, 'inception.jpg', 'https://youtu.be/YoHD9XEInc0', 'PG-13', 148),
-  (2, 'The Matrix', 'The Matrix', '1999-03-31', 'Action, Sci-Fi', 'Keanu Reeves, Laurence Fishburne', 'Lana Wachowski, Lilly Wachowski', 'Lana Wachowski, Lilly Wachowski', 'Joel Silver', 'A computer hacker learns from mysterious rebels about the true nature of his reality and his role in the war against its controllers.', true, true, 'matrix.jpg', 'https://youtu.be/m8e-FF8MsqU', 'R', 136),
-  (3, 'Interstellar', 'Interstellar', '2014-11-07', 'Adventure, Drama, Sci-Fi', 'Matthew McConaughey, Anne Hathaway', 'Christopher Nolan', 'Jonathan Nolan, Christopher Nolan', 'Lynda Obst, Christopher Nolan', 'A team of explorers travel through a wormhole in space in an attempt to ensure humanity''s survival.', true, false, 'interstellar.jpg', 'https://youtu.be/zSWdZVtXT7E', 'PG-13', 169),
-  (4, 'The Dark Knight', 'The Dark Knight', '2008-07-18', 'Action, Crime, Drama', 'Christian Bale, Heath Ledger', 'Christopher Nolan', 'Jonathan Nolan, Christopher Nolan', 'Christopher Nolan, Charles Roven', 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.', true, true, 'dark_knight.jpg', 'https://youtu.be/EXeTwQWrcwY', 'PG-13', 152)
-    ON CONFLICT (id_movie) DO NOTHING;
-INSERT INTO public.cinemas (id, name, address, phone, email)
-VALUES
-    (1, 'Cinema MM', 'Calle falsa 123', '666666666', 'cinemm@gmail.com')
-    ON CONFLICT (id) DO NOTHING;
-INSERT INTO public.screens (id_screen, id_cinema, distribution, supports)
-VALUES
-    (1, 1, 'NNNNNN-NNNNNNNNNN-NNNNNN#NNNNNN-NNNNNNNNNN-NNNNNN#NNNNNN-NNNNNNNNNN-NNNNNN#NNNNNN-NNNNNNNNNN-NNNNNN#', 'Digital, 3D'),
-    (2, 1, 'NNNNNN-PPPPPPPPPP-NNNNNN#NNNNNN-PPPPPPPPPP-NNNNNN#NNNNNN-PPPPPPPPPP-NNNNNN#', 'Digital, IMAX'),
-    (3, 1, 'NNNNNN-NNNNNNNNNN-NNNNNN#NNNNNN-NNNNNNNNNN-NNNNNN#NNNNNN-NNNNNNNNNN-NNNNNN#NNNNNN-NNNNNNNNNN-NNNNNN#', '4K, Atmos'),
-    (4, 1, 'EEE-EEEEE-EEE#', 'VIP, 4K')
-    ON CONFLICT (id_screen) DO NOTHING;
+INSERT INTO public.movies (
+    title, orig_title, release_date, genres, actors, directors, script, producers, synopsis, original_version, spanish_version, image, trailer, age_rating, duration
+) VALUES (
+             'Hit Man. Asesino por casualidad', 'Hit Man',
+             '2024-06-07', 'Acción, Comedia',
+             'Adria Arjona, Austin Amelio, Sanjay Rao, Mike Markoff, Molly Bernard, Gralen Bryant Banks, Retta , Evan Holtzman, Glen Powell',
+             'Richard Linklater',
+             'Richard Linklater, Glen Powell, Skip Hollandsworth',
+             'Jason Bateman, Mike Blizzard, Michael Costigan, Richard Linklater, Glen Powell',
+             'Gary Johnson (Glen Powell) es el asesino profesional más buscado de Nueva Orleans. Un misterioso pistolero a sueldo… que trabaja para la policía. Cuando rompe el protocolo para ayudar a una mujer desesperada (Adria Arjona) que intenta huir de un marido maltratador, acaba convirtiéndose en uno de sus falsos personajes y coqueteará con transformarse en un verdadero criminal.',
+             true, true, 'hitman.jpg',
+             'https://www.youtube.com/embed/dm4KP55jdqI', 'PG-16', 113
+
+         ),
+
+         (
+             'Bad Boys: Ride or die', 'Bad Boys: Ride or die',
+             '2024-06-07', 'Acción, Comedia, Aventura',
+             'Tiffany Haddish, Will Smith, Jacob Scipio, Vanessa Hudgens, Martin Lawrence, Joe Pantoliano, Alexander Ludwig, Paola Nunez, Ioan Gruffudd, Eric Dane, Tasha Smith, Rhea Seehorn, Melanie Liburd',
+             'Adil El Arbi, Bilall Fallah',
+             'Chris Bremner',
+             'Jerry Bruckheimer, Will Smith, Chad Oman, Doug Belgrad',
+             'Este verano, los policías más famosos del mundo regresan con su icónica mezcla de acción al límite y comedia escandalosa, pero esta vez con un giro inesperado: ¡Los mejores de Miami se dan a la fuga!.',
+             true, true, 'badboys.jpg',
+             'https://www.youtube.com/embed/LOZqqEXURzg', 'PG-16', 117
+         ),
+         (
+             'El reino del planeta de los simios', 'Kingdom of the Planet of the Apes',
+             '2024-05-10', 'Acción, Ciencia ficción',
+             'Kevin Durand, Freya Allan, Peter Macon, Owen Teague, William H. Macy',
+             'Wes Ball',
+             'Josh Friedman',
+             'Wes Ball, Joe Hartwick Jr., Rick Jaffa, Amanda Silver, Jason Reed',
+             'Ambientada varias generaciones en el futuro tras el reinado de César, en la que los simios son la especie dominante que vive en armonía y los humanos se han visto reducidos a vivir en la sombra. Mientras un nuevo y tiránico líder simio construye su imperio, un joven simio emprende un angustioso viaje que le llevará a cuestionarse todo lo que sabe sobre el pasado y a tomar decisiones que definirán el futuro de simios y humanos por igual.',
+             true, true, 'monki.jpg',
+             'https://www.youtube.com/embed/OcBktw-5QlE', 'PG-12', 145
+         ),
+
+         (
+             'Furiosa: de la saga Mad Max', 'Hit Man',
+             '2024-05-24', 'Acción',
+             'Anya Taylor-Joy, Chris Hemsworth, Tom Burke, Alyla Browne',
+             'George Miller',
+             'George Miller, Nick Lathouris',
+             'Doug Mitchell, George Miller',
+             'Al caer el mundo, la joven Furiosa (Anya Taylor-Joy) es arrebatada del Lugar Verde de Muchas Madres y cae en manos de una gran Horda de Motoristas liderada por el Señor de la Guerra Dementus. Arrasando el Páramo, se topan con la Ciudadela presidida por El Inmortan Joe. Mientras los dos Tiranos luchan por el dominio, Furiosa debe sobrevivir a muchas pruebas mientras reúne los medios para encontrar el camino de vuelta a casa.',
+             true, true, 'hitman.jpg',
+             'https://www.youtube.com/embed/GgerHF86Rv4', 'PG-16', 148
+         )
+ON CONFLICT (title, orig_title) DO NOTHING;
+
+INSERT INTO public.cinemas (
+     address, email, name, phone
+) VALUES (
+              '123 Calle Falsa', 'contacto@cineMM.com', 'FilMM', '666-666-666'
+         ) ON CONFLICT (name) DO NOTHING;
+
+
+INSERT INTO public.users (
+    user_id, nickname, password, name, surname, email, phone, points, premium, admin, token, recover_code
+) VALUES
+      (
+          1, 'bryan', '$2a$12$pj4F7oCj6gV8T675.IXpq.Dn1/Q7hBjph54Oco4Zn3Pd75vedOYGO', 'Fulano', 'García', 'nostaln44@gmail.com', '123-456-7891', 100, false, false, 'dummyToken1', 'dummyRecoverCode1'
+      ),
+      (
+          2, 'premium', '$2a$12$VmC9dzDJU1uVtQU7nVi.ZO5b88cEWh7by6Gr6YSNUEfqzxquZ5xf.', 'Fulanazo', 'Pichón', 'janesmith@example.com', '123-456-7892', 200, true, false, 'dummyToken2', 'dummyRecoverCode2'
+      ),
+      (
+          3, 'admin', '$2a$12$AxiZIgsRdefj/pQEGbgOfulSqfRPhxty/egt/u.8g0R1X2pTI8P3G', 'Adminazo', 'Admin', 'bryan.montesdeoca1@educa.madrid.org', '123-456-7893', 300, false, true, 'dummyToken3', 'dummyRecoverCode3'
+      )ON CONFLICT (user_id) DO NOTHING;
+

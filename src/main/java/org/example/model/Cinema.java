@@ -1,8 +1,20 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.example.exception.Messages;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "cinemas")
 public class Cinema {
     @Id
@@ -18,8 +30,9 @@ public class Cinema {
     @Column(nullable = false)
     private String phone;
 
+    @Email(message = Messages.MSG_ERROR_EMAIL)
     @Column(nullable = false)
     private String email;
 
-    // Constructor, Getters, and Setters omitted for brevity
+
 }

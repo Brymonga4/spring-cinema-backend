@@ -1,0 +1,25 @@
+services:
+  db:
+    image: brymonga4/cinemadb:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: cinemadb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    image: brymonga4/spring_boot_backend_cinema:tag
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/cinemadb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

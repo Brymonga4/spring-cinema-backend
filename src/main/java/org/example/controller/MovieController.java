@@ -1,43 +1,53 @@
 package org.example.controller;
 
+import jakarta.validation.Valid;
+import net.coobird.thumbnailator.Thumbnails;
+import org.example.dto.MovieDTO;
+import org.example.mapper.MovieMapper;
 import org.example.model.Movie;
 import org.example.service.MovieService;
+import org.example.util.UploadConfig;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
+
+import static org.example.util.MovieTitleUtil.getFileExtension;
+import static org.example.util.MovieTitleUtil.sanitizeTitle;
+
 
 @RestController
 @RequestMapping("/api")
 public class MovieController {
 
-    private MovieService service;
+    private final MovieService service;
+
 
     public MovieController(MovieService service) {
         this.service = service;
-    }
 
-    /*
-    GET http://localhost:8080/api/movies
-     */
+    }
 
     @GetMapping("/movies")
-    public ResponseEntity<List<Movie>> findAll(){
+    public ResponseEntity<List<MovieDTO>> findAll(){
 
-        List <Movie> movies = this.service.findAll();
+        List <MovieDTO> moviesDTO = this.service.findAll();
 
-        if (movies.isEmpty())
+        if (moviesDTO.isEmpty())
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(movies);
+        return ResponseEntity.ok(moviesDTO);
 
     }
 
-    /*
-    GET http://localhost:8080/api/movies/1
-     */
     @GetMapping("/movies/{id}")
-    public ResponseEntity<Movie> findById(@PathVariable Long id){
+    public ResponseEntity<MovieDTO> findById(@PathVariable Long id){
 
         return this.service.findById(id)
                 .map(ResponseEntity::ok)
@@ -45,37 +55,64 @@ public class MovieController {
 
     }
 
-      /*
-    POST http://localhost:8080/api/movies
-     */
 
-    @PostMapping("/movies")
-    public ResponseEntity<Movie> create(@RequestBody Movie movie){
-
-        if(movie.getId() != null)
+    @PostMapping(value = "/movies", consumes = "multipart/form-data")
+    public ResponseEntity<MovieDTO> create(@Valid @RequestPart("movie") Movie movie,
+                                           @RequestPart("file") MultipartFile file) {
+        if (movie.getId() != null)
             return ResponseEntity.badRequest().build();
 
-        this.service.save(movie);
-        return ResponseEntity.ok(movie);
+        Movie movieTosave = this.service.handleFileUpload(movie,file);
+        MovieDTO movieSaved = this.service.save(movieTosave);
+
+        return ResponseEntity.ok(movieSaved);
     }
 
-    /*
-    PUT http://localhost:8080/api/movies
-     */
-    @PutMapping("/movies")
-    public ResponseEntity<Movie> update(@RequestBody Movie movie){
+    @PostMapping(value = "/uploadMovieAndImages", consumes = "multipart/form-data")
+    public ResponseEntity<MovieDTO> createMovieAndUploadCoverAndReleasePhoto(@Valid @RequestPart("movie") Movie movie,
+                                           @RequestPart("coverFile") MultipartFile coverFile,
+                                           @RequestPart("releaseFile")MultipartFile releaseFile) {
+        if (movie.getId() != null)
+            return ResponseEntity.badRequest().build();
 
-        //Comprobamos
-        this.service.save(movie);
-        return ResponseEntity.ok(movie);
+        Movie movieTosave = this.service.handleMultipleFileUpload(movie,coverFile,releaseFile);
+        MovieDTO movieSaved = this.service.save(movieTosave);
+
+        return ResponseEntity.ok(movieSaved);
+    }
+
+    @PutMapping(value = "/movies/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<MovieDTO> update(@PathVariable Long id,
+                                           @Valid @RequestPart("movie") Movie movie,
+                                           @RequestPart("coverFile") MultipartFile coverFile,
+                                           @RequestPart("releaseFile") MultipartFile releaseFile) {
+
+        if (service.findById(id).isEmpty())
+            return ResponseEntity.badRequest().build();
+
+        movie.setId(id);
+        Movie movieToUpdate = this.service.handleMultipleFileUpload(movie,coverFile, releaseFile);
+        MovieDTO movieUpdated = this.service.update(movieToUpdate);
+
+        return ResponseEntity.ok(movieUpdated);
     }
 
     @DeleteMapping ("/movies/{identifier}")
     public ResponseEntity<Movie> deleteById(@PathVariable("identifier") Long id){
 
-        //Comprobacines
         this.service.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping ("/movies/releases")
+    public ResponseEntity<List<MovieDTO>> findRecentMovies(){
+
+        List <MovieDTO> moviesDTO = this.service.findRecentMovies();
+
+        if (moviesDTO.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(moviesDTO);
     }
 
 

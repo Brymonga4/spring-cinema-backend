@@ -1,31 +1,65 @@
 package org.example.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.example.dto.ScreeningDTO;
+import org.example.dto.ScreeningDayAndHourDTO;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "screenings")
 public class Screening {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_screening")
-    private Long idScreening;
+    @Column(name = "screening_id")
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_movie", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_screen", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "screen_id", nullable = false)
     private Screen screen;
 
-    @Column(nullable = false)
-    private LocalDateTime date;
+    @Column(name = "start_time")
+    private LocalDateTime start_time;
 
     @Column(nullable = false)
     private String audio;
 
     @Column(nullable = false)
     private Double price;
+
+    public LocalDateTime  getEndTime() {
+        if (movie != null && movie.getDuration() != null) {
+
+            return start_time.plusMinutes(movie.getDuration());
+        }
+        return start_time;
+    }
+
+    public String getDayFromStartTime() {
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        return this.start_time.format(dateFormatter);
+    }
+
+    public String getTimeFromStarTime() {
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        return this.start_time.format(timeFormatter);
+    }
 
 }
