@@ -301,7 +301,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User update(User user) {
         this.userRepository.findAndLockById(user.getId());
-        return this.save(user);
+        return this.userRepository.save(user);
     }
 
 }
